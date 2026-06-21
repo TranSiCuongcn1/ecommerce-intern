@@ -1,4 +1,4 @@
-package com.trancuong.ecommerce.auth;
+package com.trancuong.ecommerce.auth.controller;
 
 import com.trancuong.ecommerce.auth.dto.LoginRequest;
 import com.trancuong.ecommerce.auth.dto.RegisterRequest;

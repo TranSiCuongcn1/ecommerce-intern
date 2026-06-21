@@ -1,7 +1,8 @@
-package com.trancuong.ecommerce.product;
+package com.trancuong.ecommerce.product.controller;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,7 +18,7 @@ public class ProductController {
     }
 
     @GetMapping("/{id}")
-    public Map<String, Object> getProduct(@PathVariable Long id) {
+    public Map<String, Object> getProduct(@PathVariable UUID id) {
         return Map.of("id", id, "message", "TODO: return product detail");
     }
 }

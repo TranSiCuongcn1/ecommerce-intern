@@ -1,4 +1,4 @@
-package com.trancuong.ecommerce.category;
+package com.trancuong.ecommerce.category.controller;
 
 import java.util.List;
 import java.util.Map;

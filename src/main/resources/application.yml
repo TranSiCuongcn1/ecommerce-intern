@@ -5,7 +5,7 @@ spring:
   application:
     name: ecommerce-api
   datasource:
-    url: jdbc:postgresql://localhost:5432/ecommerce_db
+    url: jdbc:postgresql://127.0.0.1:5433/ecommerce_db
     username: postgres
     password: 123456
   jpa:
@@ -23,17 +23,17 @@ spring:
 
   data:
     redis:
-      host: localhost
+      host: 127.0.0.1
       port: 6379
 
 app:
   jwt:
-    secret: "replace-this-secret-with-a-long-random-value-for-real-projects"
-    expiration-minutes: 60
+    secret: "${JWT_SECRET:replace-this-secret-with-a-long-random-value-for-real-projects}"
+    expiration-minutes: "${JWT_EXPIRATION_MINUTES:60}"
   cloudinary:
-    cloud-name: "${CLOUDINARY_CLOUD_NAME:your-cloud-name}"
-    api-key: "${CLOUDINARY_API_KEY:your-api-key}"
-    api-secret: "${CLOUDINARY_API_SECRET:your-api-secret}"
+    cloud-name: "${CLOUDINARY_CLOUD_NAME}"
+    api-key: "${CLOUDINARY_API_KEY}"
+    api-secret: "${CLOUDINARY_API_SECRET}"
     folder: "ecommerce/products"
 
 springdoc:

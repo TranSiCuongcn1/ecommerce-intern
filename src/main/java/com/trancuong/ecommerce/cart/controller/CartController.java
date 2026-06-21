@@ -1,4 +1,4 @@
-package com.trancuong.ecommerce.cart;
+package com.trancuong.ecommerce.cart.controller;
 
 import java.util.Map;
 import org.springframework.web.bind.annotation.GetMapping;

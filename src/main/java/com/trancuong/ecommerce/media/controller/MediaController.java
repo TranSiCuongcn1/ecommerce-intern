@@ -1,4 +1,4 @@
-package com.trancuong.ecommerce.media;
+package com.trancuong.ecommerce.media.controller;
 
 import java.util.Map;
 import org.springframework.web.bind.annotation.PostMapping;

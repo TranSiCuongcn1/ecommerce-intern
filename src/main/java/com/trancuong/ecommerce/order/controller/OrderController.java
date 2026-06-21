@@ -1,4 +1,4 @@
-package com.trancuong.ecommerce.order;
+package com.trancuong.ecommerce.order.controller;
 
 import java.util.Map;
 import org.springframework.web.bind.annotation.PostMapping;
