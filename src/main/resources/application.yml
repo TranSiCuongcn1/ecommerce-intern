@@ -39,3 +39,11 @@ app:
 springdoc:
   swagger-ui:
     path: /swagger-ui/index.html
+
+management:
+  endpoints:
+    web:
+      base-path: /api
+  endpoint:
+    health:
+      show-details: always
