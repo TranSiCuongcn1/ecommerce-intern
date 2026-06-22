@@ -11,6 +11,6 @@ public class MediaController {
 
     @PostMapping("/upload")
     public Map<String, String> upload() {
-        return Map.of("message", "TODO: upload file to Cloudinary and return imageUrl");
+        return Map.of("message", "TODO: upload file to MinIO and return imageUrl");
     }
 }

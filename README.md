@@ -13,7 +13,7 @@ category  - product categories
 product   - product catalog
 cart      - cart and cart item flow
 order     - checkout and order management
-media     - product image upload with Cloudinary
+media     - product image upload with MinIO
 security  - Spring Security and JWT configuration
 common    - shared response, exception, and config classes
 ```
@@ -77,17 +77,18 @@ That means Hibernate checks whether the Java entities match the database schema,
 3. Implement cart APIs.
 4. Implement checkout order flow with `@Transactional`.
 5. Add Redis cache for product list/detail.
-6. Add Cloudinary upload for product images.
+6. Add MinIO upload for product images.
 7. Add Swagger examples and README testing flow.
 
-## Cloudinary Configuration
+## MinIO Configuration
 
-Create a Cloudinary account and set these environment variables before running the app:
+MinIO is configured locally via Docker Compose. Default credentials and environment variables:
 
 ```bash
-CLOUDINARY_CLOUD_NAME=your-cloud-name
-CLOUDINARY_API_KEY=your-api-key
-CLOUDINARY_API_SECRET=your-api-secret
+MINIO_ENDPOINT=http://127.0.0.1:9000
+MINIO_ACCESS_KEY=minioadmin
+MINIO_SECRET_KEY=minioadmin
+MINIO_BUCKET_NAME=ecommerce-products
 ```
 
-The database should store only the returned image URL. The actual image file is managed by Cloudinary.
+The database should store only the returned image URL. The actual image file is managed by MinIO.
