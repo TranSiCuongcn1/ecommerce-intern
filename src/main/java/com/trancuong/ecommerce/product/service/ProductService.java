@@ -32,9 +32,21 @@ public class ProductService {
         this.categoryRepository = categoryRepository;
     }
 
-    public List<ProductResponse> findAll() {
+    public List<ProductResponse> findAll(String keyword, UUID categoryId, String status) {
+        String normalizedKeyword = normalizeKeyword(keyword);
+        String normalizedStatus = normalizeOptionalStatus(status);
         return productRepository.findAll(Sort.by(Sort.Direction.ASC, "name"))
                 .stream()
+                .filter(product -> categoryId == null
+                        || product.getCategory().getId().equals(categoryId))
+                .filter(product -> normalizedStatus == null
+                        || product.getStatus().equalsIgnoreCase(normalizedStatus))
+                .filter(product -> matchesKeyword(
+                        normalizedKeyword,
+                        product.getName(),
+                        product.getSlug(),
+                        product.getDescription()
+                ))
                 .map(this::toResponse)
                 .toList();
     }
@@ -123,5 +135,32 @@ public class ProductService {
 
     private String normalizeStatus(String status) {
         return status.trim().toUpperCase();
+    }
+
+    private String normalizeOptionalStatus(String status) {
+        if (status == null || status.isBlank()) {
+            return null;
+        }
+        return normalizeStatus(status);
+    }
+
+    private String normalizeKeyword(String keyword) {
+        if (keyword == null || keyword.isBlank()) {
+            return null;
+        }
+        return keyword.trim().toLowerCase();
+    }
+
+    private boolean matchesKeyword(String keyword, String... values) {
+        if (keyword == null) {
+            return true;
+        }
+
+        for (String value : values) {
+            if (value != null && value.toLowerCase().contains(keyword)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

@@ -22,9 +22,15 @@ public class CategoryService {
         this.categoryRepository = categoryRepository;
     }
 
-    public List<CategoryResponse> findAll() {
+    public List<CategoryResponse> findAll(String keyword) {
+        String normalizedKeyword = normalizeKeyword(keyword);
         return categoryRepository.findAll(Sort.by(Sort.Direction.ASC, "name"))
                 .stream()
+                .filter(category -> matchesKeyword(
+                        normalizedKeyword,
+                        category.getName(),
+                        category.getSlug()
+                ))
                 .map(this::toResponse)
                 .toList();
     }
@@ -78,5 +84,25 @@ public class CategoryService {
                 category.getCreatedAt(),
                 category.getUpdatedAt()
         );
+    }
+
+    private String normalizeKeyword(String keyword) {
+        if (keyword == null || keyword.isBlank()) {
+            return null;
+        }
+        return keyword.trim().toLowerCase();
+    }
+
+    private boolean matchesKeyword(String keyword, String... values) {
+        if (keyword == null) {
+            return true;
+        }
+
+        for (String value : values) {
+            if (value != null && value.toLowerCase().contains(keyword)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

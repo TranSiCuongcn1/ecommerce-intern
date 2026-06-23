@@ -22,9 +22,19 @@ public class WarehouseService {
         this.warehouseRepository = warehouseRepository;
     }
 
-    public List<WarehouseResponse> findAll() {
+    public List<WarehouseResponse> findAll(String keyword, String status) {
+        String normalizedKeyword = normalizeKeyword(keyword);
+        String normalizedStatus = normalizeOptionalStatus(status);
         return warehouseRepository.findAll(Sort.by(Sort.Direction.ASC, "name"))
                 .stream()
+                .filter(warehouse -> matchesKeyword(
+                        normalizedKeyword,
+                        warehouse.getCode(),
+                        warehouse.getName(),
+                        warehouse.getAddress()
+                ))
+                .filter(warehouse -> normalizedStatus == null
+                        || warehouse.getStatus().equalsIgnoreCase(normalizedStatus))
                 .map(this::toResponse)
                 .toList();
     }
@@ -96,10 +106,37 @@ public class WarehouseService {
         return status.trim().toUpperCase();
     }
 
+    private String normalizeOptionalStatus(String status) {
+        if (status == null || status.isBlank()) {
+            return null;
+        }
+        return normalizeStatus(status);
+    }
+
     private String normalizeAddress(String address) {
         if (address == null || address.isBlank()) {
             return null;
         }
         return address.trim();
+    }
+
+    private String normalizeKeyword(String keyword) {
+        if (keyword == null || keyword.isBlank()) {
+            return null;
+        }
+        return keyword.trim().toLowerCase();
+    }
+
+    private boolean matchesKeyword(String keyword, String... values) {
+        if (keyword == null) {
+            return true;
+        }
+
+        for (String value : values) {
+            if (value != null && value.toLowerCase().contains(keyword)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

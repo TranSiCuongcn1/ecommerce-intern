@@ -38,9 +38,21 @@ public class InventoryService {
         this.warehouseRepository = warehouseRepository;
     }
 
-    public List<InventoryResponse> findAll() {
+    public List<InventoryResponse> findAll(
+            UUID productId,
+            UUID warehouseId,
+            boolean availableOnly,
+            boolean lowStockOnly
+    ) {
         return inventoryRepository.findAll(Sort.by(Sort.Direction.DESC, "updatedAt"))
                 .stream()
+                .filter(inventory -> productId == null
+                        || inventory.getProduct().getId().equals(productId))
+                .filter(inventory -> warehouseId == null
+                        || inventory.getWarehouse().getId().equals(warehouseId))
+                .filter(inventory -> !availableOnly || inventory.getAvailableQuantity() > 0)
+                .filter(inventory -> !lowStockOnly
+                        || inventory.getQuantityOnHand() <= inventory.getReorderLevel())
                 .map(this::toResponse)
                 .toList();
     }

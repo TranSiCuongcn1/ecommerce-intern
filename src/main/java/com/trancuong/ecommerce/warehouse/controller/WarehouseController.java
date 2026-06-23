@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -28,8 +29,11 @@ public class WarehouseController {
     }
 
     @GetMapping
-    public List<WarehouseResponse> getWarehouses() {
-        return warehouseService.findAll();
+    public List<WarehouseResponse> getWarehouses(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String status
+    ) {
+        return warehouseService.findAll(keyword, status);
     }
 
     @GetMapping("/{id}")

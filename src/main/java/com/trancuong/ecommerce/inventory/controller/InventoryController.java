@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -28,8 +29,13 @@ public class InventoryController {
     }
 
     @GetMapping
-    public List<InventoryResponse> getInventoryItems() {
-        return inventoryService.findAll();
+    public List<InventoryResponse> getInventoryItems(
+            @RequestParam(required = false) UUID productId,
+            @RequestParam(required = false) UUID warehouseId,
+            @RequestParam(required = false, defaultValue = "false") boolean availableOnly,
+            @RequestParam(required = false, defaultValue = "false") boolean lowStockOnly
+    ) {
+        return inventoryService.findAll(productId, warehouseId, availableOnly, lowStockOnly);
     }
 
     @GetMapping("/{id}")
