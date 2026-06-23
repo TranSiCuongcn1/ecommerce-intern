@@ -1,5 +1,8 @@
 package com.trancuong.ecommerce.common.api;
 
+import com.trancuong.ecommerce.auth.exception.DuplicateEmailException;
+import com.trancuong.ecommerce.auth.exception.InvalidCredentialsException;
+import com.trancuong.ecommerce.auth.exception.InvalidRefreshTokenException;
 import com.trancuong.ecommerce.category.exception.CategoryNotFoundException;
 import com.trancuong.ecommerce.category.exception.DuplicateCategorySlugException;
 import com.trancuong.ecommerce.inventory.exception.DuplicateInventoryException;
@@ -82,6 +85,25 @@ public class GlobalExceptionHandler {
             HttpServletRequest request
     ) {
         return response(HttpStatus.CONFLICT, exception.getMessage(), request);
+    }
+
+    @ExceptionHandler(DuplicateEmailException.class)
+    public ResponseEntity<ApiError> handleDuplicateEmail(
+            DuplicateEmailException exception,
+            HttpServletRequest request
+    ) {
+        return response(HttpStatus.CONFLICT, exception.getMessage(), request);
+    }
+
+    @ExceptionHandler({
+            InvalidCredentialsException.class,
+            InvalidRefreshTokenException.class
+    })
+    public ResponseEntity<ApiError> handleUnauthorized(
+            RuntimeException exception,
+            HttpServletRequest request
+    ) {
+        return response(HttpStatus.UNAUTHORIZED, exception.getMessage(), request);
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)

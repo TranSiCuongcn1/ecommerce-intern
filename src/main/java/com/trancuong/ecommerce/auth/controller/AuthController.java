@@ -1,9 +1,11 @@
 package com.trancuong.ecommerce.auth.controller;
 
+import com.trancuong.ecommerce.auth.dto.AuthResponse;
 import com.trancuong.ecommerce.auth.dto.LoginRequest;
+import com.trancuong.ecommerce.auth.dto.RefreshTokenRequest;
 import com.trancuong.ecommerce.auth.dto.RegisterRequest;
+import com.trancuong.ecommerce.auth.service.AuthService;
 import jakarta.validation.Valid;
-import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,14 +17,25 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/auth")
 public class AuthController {
 
+    private final AuthService authService;
+
+    public AuthController(AuthService authService) {
+        this.authService = authService;
+    }
+
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
-    public Map<String, String> register(@Valid @RequestBody RegisterRequest request) {
-        return Map.of("message", "TODO: create user " + request.email());
+    public AuthResponse register(@Valid @RequestBody RegisterRequest request) {
+        return authService.register(request);
     }
 
     @PostMapping("/login")
-    public Map<String, String> login(@Valid @RequestBody LoginRequest request) {
-        return Map.of("message", "TODO: authenticate " + request.email());
+    public AuthResponse login(@Valid @RequestBody LoginRequest request) {
+        return authService.login(request);
+    }
+
+    @PostMapping("/refresh")
+    public AuthResponse refresh(@Valid @RequestBody RefreshTokenRequest request) {
+        return authService.refresh(request);
     }
 }
