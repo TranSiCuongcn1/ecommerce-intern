@@ -2,6 +2,8 @@ package com.trancuong.ecommerce.common.api;
 
 import com.trancuong.ecommerce.category.exception.CategoryNotFoundException;
 import com.trancuong.ecommerce.category.exception.DuplicateCategorySlugException;
+import com.trancuong.ecommerce.warehouse.exception.DuplicateWarehouseCodeException;
+import com.trancuong.ecommerce.warehouse.exception.WarehouseNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import java.time.Instant;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -22,9 +24,25 @@ public class GlobalExceptionHandler {
         return response(HttpStatus.NOT_FOUND, exception.getMessage(), request);
     }
 
+    @ExceptionHandler(WarehouseNotFoundException.class)
+    public ResponseEntity<ApiError> handleNotFound(
+            WarehouseNotFoundException exception,
+            HttpServletRequest request
+    ) {
+        return response(HttpStatus.NOT_FOUND, exception.getMessage(), request);
+    }
+
     @ExceptionHandler(DuplicateCategorySlugException.class)
     public ResponseEntity<ApiError> handleDuplicateSlug(
             DuplicateCategorySlugException exception,
+            HttpServletRequest request
+    ) {
+        return response(HttpStatus.CONFLICT, exception.getMessage(), request);
+    }
+
+    @ExceptionHandler(DuplicateWarehouseCodeException.class)
+    public ResponseEntity<ApiError> handleDuplicateCode(
+            DuplicateWarehouseCodeException exception,
             HttpServletRequest request
     ) {
         return response(HttpStatus.CONFLICT, exception.getMessage(), request);
