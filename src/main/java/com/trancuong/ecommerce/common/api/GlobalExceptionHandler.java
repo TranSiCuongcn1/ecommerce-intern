@@ -2,6 +2,8 @@ package com.trancuong.ecommerce.common.api;
 
 import com.trancuong.ecommerce.category.exception.CategoryNotFoundException;
 import com.trancuong.ecommerce.category.exception.DuplicateCategorySlugException;
+import com.trancuong.ecommerce.inventory.exception.DuplicateInventoryException;
+import com.trancuong.ecommerce.inventory.exception.InventoryNotFoundException;
 import com.trancuong.ecommerce.product.exception.DuplicateProductSlugException;
 import com.trancuong.ecommerce.product.exception.ProductNotFoundException;
 import com.trancuong.ecommerce.warehouse.exception.DuplicateWarehouseCodeException;
@@ -42,6 +44,14 @@ public class GlobalExceptionHandler {
         return response(HttpStatus.NOT_FOUND, exception.getMessage(), request);
     }
 
+    @ExceptionHandler(InventoryNotFoundException.class)
+    public ResponseEntity<ApiError> handleNotFound(
+            InventoryNotFoundException exception,
+            HttpServletRequest request
+    ) {
+        return response(HttpStatus.NOT_FOUND, exception.getMessage(), request);
+    }
+
     @ExceptionHandler(DuplicateCategorySlugException.class)
     public ResponseEntity<ApiError> handleDuplicateSlug(
             DuplicateCategorySlugException exception,
@@ -61,6 +71,14 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DuplicateProductSlugException.class)
     public ResponseEntity<ApiError> handleDuplicateSlug(
             DuplicateProductSlugException exception,
+            HttpServletRequest request
+    ) {
+        return response(HttpStatus.CONFLICT, exception.getMessage(), request);
+    }
+
+    @ExceptionHandler(DuplicateInventoryException.class)
+    public ResponseEntity<ApiError> handleDuplicateInventory(
+            DuplicateInventoryException exception,
             HttpServletRequest request
     ) {
         return response(HttpStatus.CONFLICT, exception.getMessage(), request);
