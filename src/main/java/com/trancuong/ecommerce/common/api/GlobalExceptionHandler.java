@@ -6,6 +6,7 @@ import com.trancuong.ecommerce.auth.exception.InvalidRefreshTokenException;
 import com.trancuong.ecommerce.category.exception.CategoryNotFoundException;
 import com.trancuong.ecommerce.category.exception.DuplicateCategorySlugException;
 import com.trancuong.ecommerce.inventory.exception.DuplicateInventoryException;
+import com.trancuong.ecommerce.inventory.exception.InsufficientInventoryException;
 import com.trancuong.ecommerce.inventory.exception.InventoryNotFoundException;
 import com.trancuong.ecommerce.product.exception.DuplicateProductSlugException;
 import com.trancuong.ecommerce.product.exception.ProductNotFoundException;
@@ -82,6 +83,14 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DuplicateInventoryException.class)
     public ResponseEntity<ApiError> handleDuplicateInventory(
             DuplicateInventoryException exception,
+            HttpServletRequest request
+    ) {
+        return response(HttpStatus.CONFLICT, exception.getMessage(), request);
+    }
+
+    @ExceptionHandler(InsufficientInventoryException.class)
+    public ResponseEntity<ApiError> handleInsufficientInventory(
+            InsufficientInventoryException exception,
             HttpServletRequest request
     ) {
         return response(HttpStatus.CONFLICT, exception.getMessage(), request);

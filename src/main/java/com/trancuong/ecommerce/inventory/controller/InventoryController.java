@@ -1,5 +1,7 @@
 package com.trancuong.ecommerce.inventory.controller;
 
+import com.trancuong.ecommerce.inventory.dto.InventoryAllocationRequest;
+import com.trancuong.ecommerce.inventory.dto.InventoryAllocationResponse;
 import com.trancuong.ecommerce.inventory.dto.InventoryRequest;
 import com.trancuong.ecommerce.inventory.dto.InventoryResponse;
 import com.trancuong.ecommerce.inventory.service.InventoryService;
@@ -41,6 +43,13 @@ public class InventoryController {
     @GetMapping("/{id}")
     public InventoryResponse getInventoryItem(@PathVariable UUID id) {
         return inventoryService.findById(id);
+    }
+
+    @PostMapping("/allocate")
+    public InventoryAllocationResponse allocateInventory(
+            @Valid @RequestBody InventoryAllocationRequest request
+    ) {
+        return inventoryService.allocate(request);
     }
 
     @PostMapping

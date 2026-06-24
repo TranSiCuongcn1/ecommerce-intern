@@ -93,4 +93,8 @@ public class Inventory {
     public Integer getAvailableQuantity() {
         return quantityOnHand - quantityReserved;
     }
+
+    public void reserve(Integer quantity) {
+        this.quantityReserved += quantity;
+    }
 }

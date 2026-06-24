@@ -1,11 +1,14 @@
 package com.trancuong.ecommerce.inventory.service;
 
 import com.trancuong.ecommerce.inventory.domain.Inventory;
+import com.trancuong.ecommerce.inventory.dto.InventoryAllocationRequest;
+import com.trancuong.ecommerce.inventory.dto.InventoryAllocationResponse;
+import com.trancuong.ecommerce.inventory.dto.InventoryAllocationResponse.ProductSummary;
+import com.trancuong.ecommerce.inventory.dto.InventoryAllocationResponse.WarehouseSummary;
 import com.trancuong.ecommerce.inventory.dto.InventoryRequest;
 import com.trancuong.ecommerce.inventory.dto.InventoryResponse;
-import com.trancuong.ecommerce.inventory.dto.InventoryResponse.ProductSummary;
-import com.trancuong.ecommerce.inventory.dto.InventoryResponse.WarehouseSummary;
 import com.trancuong.ecommerce.inventory.exception.DuplicateInventoryException;
+import com.trancuong.ecommerce.inventory.exception.InsufficientInventoryException;
 import com.trancuong.ecommerce.inventory.exception.InventoryNotFoundException;
 import com.trancuong.ecommerce.inventory.repository.InventoryRepository;
 import com.trancuong.ecommerce.product.domain.Product;
@@ -14,6 +17,7 @@ import com.trancuong.ecommerce.product.repository.ProductRepository;
 import com.trancuong.ecommerce.warehouse.domain.Warehouse;
 import com.trancuong.ecommerce.warehouse.exception.WarehouseNotFoundException;
 import com.trancuong.ecommerce.warehouse.repository.WarehouseRepository;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.Sort;
@@ -59,6 +63,26 @@ public class InventoryService {
 
     public InventoryResponse findById(UUID id) {
         return toResponse(getInventory(id));
+    }
+
+    @Transactional
+    public InventoryAllocationResponse allocate(InventoryAllocationRequest request) {
+        Product product = getProduct(request.productId());
+        Inventory inventory = inventoryRepository.findByProductId(product.getId())
+                .stream()
+                .filter(item -> "ACTIVE".equalsIgnoreCase(item.getWarehouse().getStatus()))
+                .filter(item -> item.getAvailableQuantity() >= request.quantity())
+                .min(Comparator
+                        .comparingInt(Inventory::getAvailableQuantity)
+                        .thenComparing(item -> item.getWarehouse().getCode()))
+                .orElseThrow(() -> new InsufficientInventoryException(
+                        request.productId(),
+                        request.quantity()
+                ));
+
+        inventory.reserve(request.quantity());
+        inventoryRepository.flush();
+        return toAllocationResponse(inventory, request.quantity());
     }
 
     @Transactional
@@ -135,8 +159,8 @@ public class InventoryService {
         Warehouse warehouse = inventory.getWarehouse();
         return new InventoryResponse(
                 inventory.getId(),
-                new ProductSummary(product.getId(), product.getName(), product.getSlug()),
-                new WarehouseSummary(warehouse.getId(), warehouse.getCode(), warehouse.getName()),
+                new InventoryResponse.ProductSummary(product.getId(), product.getName(), product.getSlug()),
+                new InventoryResponse.WarehouseSummary(warehouse.getId(), warehouse.getCode(), warehouse.getName()),
                 inventory.getQuantityOnHand(),
                 inventory.getQuantityReserved(),
                 inventory.getAvailableQuantity(),
@@ -144,6 +168,23 @@ public class InventoryService {
                 inventory.getVersion(),
                 inventory.getCreatedAt(),
                 inventory.getUpdatedAt()
+        );
+    }
+
+    private InventoryAllocationResponse toAllocationResponse(
+            Inventory inventory,
+            Integer allocatedQuantity
+    ) {
+        Product product = inventory.getProduct();
+        Warehouse warehouse = inventory.getWarehouse();
+        return new InventoryAllocationResponse(
+                inventory.getId(),
+                new ProductSummary(product.getId(), product.getName(), product.getSlug()),
+                new WarehouseSummary(warehouse.getId(), warehouse.getCode(), warehouse.getName()),
+                allocatedQuantity,
+                inventory.getQuantityOnHand(),
+                inventory.getQuantityReserved(),
+                inventory.getAvailableQuantity()
         );
     }
 }
