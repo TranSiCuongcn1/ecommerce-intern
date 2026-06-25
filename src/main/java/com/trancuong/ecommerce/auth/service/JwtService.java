@@ -6,9 +6,11 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.UUID;
 import javax.crypto.SecretKey;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -42,6 +44,18 @@ public class JwtService {
         return parseClaims(token).getSubject();
     }
 
+    public String extractTokenId(String token) {
+        return parseClaims(token).getId();
+    }
+
+    public Instant extractExpiration(String token) {
+        return parseClaims(token).getExpiration().toInstant();
+    }
+
+    public Duration getRemainingTtl(String token) {
+        return Duration.between(Instant.now(), extractExpiration(token));
+    }
+
     public boolean isAccessToken(String token) {
         return "access".equals(parseClaims(token).get("type", String.class));
     }
@@ -62,6 +76,7 @@ public class JwtService {
     private String generateToken(User user, String type, Instant expiresAt) {
         Instant issuedAt = Instant.now();
         return Jwts.builder()
+                .id(UUID.randomUUID().toString())
                 .subject(user.getEmail())
                 .claim("userId", user.getId().toString())
                 .claim("role", user.getRole().name())
