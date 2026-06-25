@@ -3,6 +3,7 @@ package com.trancuong.ecommerce.auth.service;
 import com.trancuong.ecommerce.auth.dto.AuthResponse;
 import com.trancuong.ecommerce.auth.dto.AuthResponse.UserSummary;
 import com.trancuong.ecommerce.auth.dto.LoginRequest;
+import com.trancuong.ecommerce.auth.dto.LogoutRequest;
 import com.trancuong.ecommerce.auth.dto.RefreshTokenRequest;
 import com.trancuong.ecommerce.auth.dto.RegisterRequest;
 import com.trancuong.ecommerce.auth.exception.DuplicateEmailException;
@@ -18,6 +19,10 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional(readOnly = true)
 public class AuthService {
+
+    private static final String ACCESS_TOKEN_TYPE = "access";
+    private static final String REFRESH_TOKEN_TYPE = "refresh";
+    private static final String BEARER_PREFIX = "Bearer ";
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -69,7 +74,7 @@ public class AuthService {
         if (!jwtService.isValid(refreshToken) || !jwtService.isRefreshToken(refreshToken)) {
             throw new InvalidRefreshTokenException();
         }
-        if (tokenBlacklistService.isBlacklisted("refresh", jwtService.extractTokenId(refreshToken))) {
+        if (tokenBlacklistService.isBlacklisted(REFRESH_TOKEN_TYPE, jwtService.extractTokenId(refreshToken))) {
             throw new InvalidRefreshTokenException();
         }
 
@@ -77,7 +82,22 @@ public class AuthService {
         User user = userRepository.findByEmailIgnoreCase(email)
                 .orElseThrow(InvalidRefreshTokenException::new);
 
+        blacklistToken(REFRESH_TOKEN_TYPE, refreshToken);
         return toAuthResponse(user);
+    }
+
+    public void logout(String authorizationHeader, LogoutRequest request) {
+        String refreshToken = request.refreshToken().trim();
+        if (!jwtService.isValid(refreshToken) || !jwtService.isRefreshToken(refreshToken)) {
+            throw new InvalidRefreshTokenException();
+        }
+
+        blacklistToken(REFRESH_TOKEN_TYPE, refreshToken);
+
+        String accessToken = extractBearerToken(authorizationHeader);
+        if (accessToken != null && jwtService.isValid(accessToken) && jwtService.isAccessToken(accessToken)) {
+            blacklistToken(ACCESS_TOKEN_TYPE, accessToken);
+        }
     }
 
     private AuthResponse toAuthResponse(User user) {
@@ -96,5 +116,22 @@ public class AuthService {
 
     private String normalizeEmail(String email) {
         return email.trim().toLowerCase();
+    }
+
+    private void blacklistToken(String tokenType, String token) {
+        tokenBlacklistService.blacklist(
+                tokenType,
+                jwtService.extractTokenId(token),
+                jwtService.getRemainingTtl(token)
+        );
+    }
+
+    private String extractBearerToken(String authorizationHeader) {
+        if (authorizationHeader == null || !authorizationHeader.startsWith(BEARER_PREFIX)) {
+            return null;
+        }
+
+        String token = authorizationHeader.substring(BEARER_PREFIX.length()).trim();
+        return token.isBlank() ? null : token;
     }
 }
