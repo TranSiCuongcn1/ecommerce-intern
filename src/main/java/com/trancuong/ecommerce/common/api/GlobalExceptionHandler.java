@@ -10,6 +10,7 @@ import com.trancuong.ecommerce.inventory.exception.InsufficientInventoryExceptio
 import com.trancuong.ecommerce.inventory.exception.InventoryNotFoundException;
 import com.trancuong.ecommerce.product.exception.DuplicateProductSlugException;
 import com.trancuong.ecommerce.product.exception.ProductNotFoundException;
+import com.trancuong.ecommerce.user.exception.UserAddressNotFoundException;
 import com.trancuong.ecommerce.warehouse.exception.DuplicateWarehouseCodeException;
 import com.trancuong.ecommerce.warehouse.exception.WarehouseNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -51,6 +52,14 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(InventoryNotFoundException.class)
     public ResponseEntity<ApiError> handleNotFound(
             InventoryNotFoundException exception,
+            HttpServletRequest request
+    ) {
+        return response(HttpStatus.NOT_FOUND, exception.getMessage(), request);
+    }
+
+    @ExceptionHandler(UserAddressNotFoundException.class)
+    public ResponseEntity<ApiError> handleNotFound(
+            UserAddressNotFoundException exception,
             HttpServletRequest request
     ) {
         return response(HttpStatus.NOT_FOUND, exception.getMessage(), request);
