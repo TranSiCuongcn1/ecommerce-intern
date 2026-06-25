@@ -22,15 +22,18 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final TokenBlacklistService tokenBlacklistService;
 
     public AuthService(
             UserRepository userRepository,
             PasswordEncoder passwordEncoder,
-            JwtService jwtService
+            JwtService jwtService,
+            TokenBlacklistService tokenBlacklistService
     ) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
+        this.tokenBlacklistService = tokenBlacklistService;
     }
 
     @Transactional
@@ -64,6 +67,9 @@ public class AuthService {
     public AuthResponse refresh(RefreshTokenRequest request) {
         String refreshToken = request.refreshToken().trim();
         if (!jwtService.isValid(refreshToken) || !jwtService.isRefreshToken(refreshToken)) {
+            throw new InvalidRefreshTokenException();
+        }
+        if (tokenBlacklistService.isBlacklisted("refresh", jwtService.extractTokenId(refreshToken))) {
             throw new InvalidRefreshTokenException();
         }
 

@@ -1,6 +1,7 @@
 package com.trancuong.ecommerce.security;
 
 import com.trancuong.ecommerce.auth.service.JwtService;
+import com.trancuong.ecommerce.auth.service.TokenBlacklistService;
 import com.trancuong.ecommerce.user.domain.User;
 import com.trancuong.ecommerce.user.repository.UserRepository;
 import jakarta.servlet.FilterChain;
@@ -20,13 +21,16 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
+    private final TokenBlacklistService tokenBlacklistService;
     private final UserRepository userRepository;
 
     public JwtAuthenticationFilter(
             JwtService jwtService,
+            TokenBlacklistService tokenBlacklistService,
             UserRepository userRepository
     ) {
         this.jwtService = jwtService;
+        this.tokenBlacklistService = tokenBlacklistService;
         this.userRepository = userRepository;
     }
 
@@ -44,6 +48,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String token = authHeader.substring(7);
         if (!jwtService.isValid(token) || !jwtService.isAccessToken(token)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+        if (tokenBlacklistService.isBlacklisted("access", jwtService.extractTokenId(token))) {
             filterChain.doFilter(request, response);
             return;
         }
