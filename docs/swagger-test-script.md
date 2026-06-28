@@ -1,0 +1,415 @@
+# Swagger Test Script
+
+Use this script in Swagger UI:
+
+```text
+http://localhost:8080/swagger-ui/index.html
+```
+
+## 0. Health Check
+
+```http
+GET /api/health
+```
+
+Expected: `200 OK`.
+
+## 1. Auth Module
+
+### Register User
+
+```http
+POST /api/auth/register
+```
+
+Body:
+
+```json
+{
+  "fullName": "Test Customer",
+  "email": "customer@example.com",
+  "password": "password123"
+}
+```
+
+Expected: `201 Created`. Copy `accessToken` and `refreshToken`.
+
+### Login
+
+```http
+POST /api/auth/login
+```
+
+Body:
+
+```json
+{
+  "email": "customer@example.com",
+  "password": "password123"
+}
+```
+
+Expected: `200 OK`.
+
+### Authorize Swagger
+
+Click `Authorize` and input:
+
+```text
+Bearer <accessToken>
+```
+
+### Refresh Token
+
+```http
+POST /api/auth/refresh
+```
+
+Body:
+
+```json
+{
+  "refreshToken": "<refreshToken>"
+}
+```
+
+Expected: `200 OK`.
+
+### Logout
+
+```http
+POST /api/auth/logout
+```
+
+Body:
+
+```json
+{
+  "refreshToken": "<refreshToken>"
+}
+```
+
+Expected: `204 No Content`.
+
+## 2. User Profile Module
+
+### Get Current Profile
+
+```http
+GET /api/me
+```
+
+Expected: `200 OK`.
+
+### Get Addresses
+
+```http
+GET /api/me/addresses
+```
+
+Expected: `200 OK`.
+
+### Create Address
+
+```http
+POST /api/me/addresses
+```
+
+Body:
+
+```json
+{
+  "receiverName": "Test Customer",
+  "receiverPhone": "0900000000",
+  "province": "Ho Chi Minh",
+  "district": "District 1",
+  "ward": "Ben Nghe",
+  "detailAddress": "123 Nguyen Hue",
+  "defaultAddress": true
+}
+```
+
+Expected: `201 Created`. Copy returned `id` as `addressId`.
+
+### Update Address
+
+```http
+PUT /api/me/addresses/{id}
+```
+
+Expected: `200 OK`.
+
+### Set Default Address
+
+```http
+PATCH /api/me/addresses/{id}/default
+```
+
+Expected: `200 OK`.
+
+### Delete Address
+
+```http
+DELETE /api/me/addresses/{id}
+```
+
+Expected: `204 No Content`.
+
+## 3. Category Module
+
+### Create Category
+
+```http
+POST /api/categories
+```
+
+Body:
+
+```json
+{
+  "name": "Phones",
+  "slug": "phones"
+}
+```
+
+Expected: `201 Created`. Copy returned `id` as `categoryId`.
+
+### Get Categories
+
+```http
+GET /api/categories
+GET /api/categories?keyword=phone
+```
+
+Expected: `200 OK`.
+
+### Get Category Detail
+
+```http
+GET /api/categories/{id}
+```
+
+Expected: `200 OK`.
+
+### Update Category
+
+```http
+PUT /api/categories/{id}
+```
+
+Expected: `200 OK`.
+
+### Delete Category
+
+```http
+DELETE /api/categories/{id}
+```
+
+Expected: `204 No Content`.
+
+## 4. Product Module
+
+### Create Product
+
+```http
+POST /api/products
+```
+
+Body:
+
+```json
+{
+  "categoryId": "<categoryId>",
+  "name": "iPhone 15",
+  "slug": "iphone-15",
+  "description": "Apple smartphone",
+  "price": 19990000,
+  "imageUrl": "https://example.com/iphone-15.jpg",
+  "status": "ACTIVE"
+}
+```
+
+Expected: `201 Created`. Copy returned `id` as `productId`.
+
+### Get Products
+
+```http
+GET /api/products
+GET /api/products?keyword=iphone
+GET /api/products?categoryId=<categoryId>
+GET /api/products?status=ACTIVE
+```
+
+Expected: `200 OK`.
+
+### Get Product Detail
+
+```http
+GET /api/products/{id}
+```
+
+Expected: `200 OK`.
+
+### Update Product
+
+```http
+PUT /api/products/{id}
+```
+
+Expected: `200 OK`.
+
+### Delete Product
+
+```http
+DELETE /api/products/{id}
+```
+
+Expected: `204 No Content`.
+
+## 5. Warehouse Module
+
+### Create Warehouse
+
+```http
+POST /api/warehouses
+```
+
+Body:
+
+```json
+{
+  "code": "HCM-01",
+  "name": "Ho Chi Minh Warehouse",
+  "address": "District 1, Ho Chi Minh",
+  "status": "ACTIVE"
+}
+```
+
+Expected: `201 Created`. Copy returned `id` as `warehouseId`.
+
+### Get Warehouses
+
+```http
+GET /api/warehouses
+GET /api/warehouses?keyword=hcm
+GET /api/warehouses?status=ACTIVE
+```
+
+Expected: `200 OK`.
+
+### Get Warehouse Detail
+
+```http
+GET /api/warehouses/{id}
+```
+
+Expected: `200 OK`.
+
+### Update Warehouse
+
+```http
+PUT /api/warehouses/{id}
+```
+
+Expected: `200 OK`.
+
+### Delete Warehouse
+
+```http
+DELETE /api/warehouses/{id}
+```
+
+Expected: `204 No Content`.
+
+## 6. Inventory Module
+
+### Create Inventory
+
+```http
+POST /api/inventory
+```
+
+Body:
+
+```json
+{
+  "productId": "<productId>",
+  "warehouseId": "<warehouseId>",
+  "quantityOnHand": 100,
+  "quantityReserved": 0,
+  "reorderLevel": 10
+}
+```
+
+Expected: `201 Created`. Copy returned `id` as `inventoryId`.
+
+### Get Inventory
+
+```http
+GET /api/inventory
+GET /api/inventory?productId=<productId>
+GET /api/inventory?warehouseId=<warehouseId>
+GET /api/inventory?availableOnly=true
+GET /api/inventory?lowStockOnly=true
+```
+
+Expected: `200 OK`.
+
+### Get Inventory Detail
+
+```http
+GET /api/inventory/{id}
+```
+
+Expected: `200 OK`.
+
+### Allocate Inventory
+
+```http
+POST /api/inventory/allocate
+```
+
+Body:
+
+```json
+{
+  "productId": "<productId>",
+  "quantity": 2
+}
+```
+
+Expected: `200 OK`. `quantityReserved` increases and `availableQuantity` decreases.
+
+### Update Inventory
+
+```http
+PUT /api/inventory/{id}
+```
+
+Expected: `200 OK`.
+
+### Delete Inventory
+
+```http
+DELETE /api/inventory/{id}
+```
+
+Expected: `204 No Content`.
+
+## 7. TODO Endpoints
+
+These endpoints exist but still return placeholder responses.
+
+```http
+GET /api/cart
+POST /api/orders/checkout
+POST /api/admin/media/upload
+```
+
+Expected: placeholder `message` response, except `/api/admin/media/upload` requires `ADMIN`.
+
+## Notes
+
+- Register creates `CUSTOMER` users only.
+- There is no public API to create an `ADMIN` user yet.
+- Product/category/warehouse/inventory mutation endpoints are currently public in `SecurityConfig`; production should usually restrict `POST`, `PUT`, and `DELETE` to `ADMIN`.
