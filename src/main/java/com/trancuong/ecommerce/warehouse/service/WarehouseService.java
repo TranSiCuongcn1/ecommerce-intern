@@ -8,19 +8,17 @@ import com.trancuong.ecommerce.warehouse.exception.WarehouseNotFoundException;
 import com.trancuong.ecommerce.warehouse.repository.WarehouseRepository;
 import java.util.List;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class WarehouseService {
 
     private final WarehouseRepository warehouseRepository;
-
-    public WarehouseService(WarehouseRepository warehouseRepository) {
-        this.warehouseRepository = warehouseRepository;
-    }
 
     public List<WarehouseResponse> findAll(String keyword, String status) {
         String normalizedKeyword = normalizeKeyword(keyword);

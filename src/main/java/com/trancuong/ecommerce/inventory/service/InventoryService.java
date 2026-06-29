@@ -20,27 +20,19 @@ import com.trancuong.ecommerce.warehouse.repository.WarehouseRepository;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class InventoryService {
 
     private final InventoryRepository inventoryRepository;
     private final ProductRepository productRepository;
     private final WarehouseRepository warehouseRepository;
-
-    public InventoryService(
-            InventoryRepository inventoryRepository,
-            ProductRepository productRepository,
-            WarehouseRepository warehouseRepository
-    ) {
-        this.inventoryRepository = inventoryRepository;
-        this.productRepository = productRepository;
-        this.warehouseRepository = warehouseRepository;
-    }
 
     public List<InventoryResponse> findAll(
             UUID productId,

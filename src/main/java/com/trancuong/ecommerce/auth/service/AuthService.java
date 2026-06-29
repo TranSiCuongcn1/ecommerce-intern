@@ -12,12 +12,14 @@ import com.trancuong.ecommerce.auth.exception.InvalidRefreshTokenException;
 import com.trancuong.ecommerce.user.domain.Role;
 import com.trancuong.ecommerce.user.domain.User;
 import com.trancuong.ecommerce.user.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class AuthService {
 
     private static final String ACCESS_TOKEN_TYPE = "access";
@@ -28,18 +30,6 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final TokenBlacklistService tokenBlacklistService;
-
-    public AuthService(
-            UserRepository userRepository,
-            PasswordEncoder passwordEncoder,
-            JwtService jwtService,
-            TokenBlacklistService tokenBlacklistService
-    ) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.jwtService = jwtService;
-        this.tokenBlacklistService = tokenBlacklistService;
-    }
 
     @Transactional
     public AuthResponse register(RegisterRequest request) {

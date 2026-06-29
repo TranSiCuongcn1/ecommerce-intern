@@ -9,18 +9,16 @@ import com.trancuong.ecommerce.user.exception.UserAddressNotFoundException;
 import com.trancuong.ecommerce.user.repository.UserAddressRepository;
 import java.util.List;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class UserProfileService {
 
     private final UserAddressRepository userAddressRepository;
-
-    public UserProfileService(UserAddressRepository userAddressRepository) {
-        this.userAddressRepository = userAddressRepository;
-    }
 
     public UserProfileResponse getProfile(User user) {
         UserAddressResponse defaultAddress = userAddressRepository

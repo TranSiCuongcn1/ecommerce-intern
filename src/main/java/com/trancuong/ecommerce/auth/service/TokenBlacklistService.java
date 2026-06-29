@@ -1,20 +1,18 @@
 package com.trancuong.ecommerce.auth.service;
 
 import java.time.Duration;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class TokenBlacklistService {
 
     private static final String KEY_PREFIX = "jwt:blacklist:";
     private static final String BLACKLISTED_VALUE = "revoked";
 
     private final StringRedisTemplate redisTemplate;
-
-    public TokenBlacklistService(StringRedisTemplate redisTemplate) {
-        this.redisTemplate = redisTemplate;
-    }
 
     public void blacklist(String tokenType, String tokenId, Duration ttl) {
         if (tokenId == null || tokenId.isBlank() || ttl == null || !ttl.isPositive()) {

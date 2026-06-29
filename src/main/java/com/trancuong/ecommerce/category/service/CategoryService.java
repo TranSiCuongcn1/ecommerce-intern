@@ -8,19 +8,17 @@ import com.trancuong.ecommerce.category.exception.DuplicateCategorySlugException
 import com.trancuong.ecommerce.category.repository.CategoryRepository;
 import java.util.List;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class CategoryService {
 
     private final CategoryRepository categoryRepository;
-
-    public CategoryService(CategoryRepository categoryRepository) {
-        this.categoryRepository = categoryRepository;
-    }
 
     public List<CategoryResponse> findAll(String keyword) {
         String normalizedKeyword = normalizeKeyword(keyword);

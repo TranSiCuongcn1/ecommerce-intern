@@ -13,24 +13,18 @@ import com.trancuong.ecommerce.product.repository.ProductRepository;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class ProductService {
 
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
-
-    public ProductService(
-            ProductRepository productRepository,
-            CategoryRepository categoryRepository
-    ) {
-        this.productRepository = productRepository;
-        this.categoryRepository = categoryRepository;
-    }
 
     public List<ProductResponse> findAll(String keyword, UUID categoryId, String status) {
         String normalizedKeyword = normalizeKeyword(keyword);
