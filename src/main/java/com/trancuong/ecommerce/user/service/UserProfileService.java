@@ -6,6 +6,7 @@ import com.trancuong.ecommerce.user.dto.UserAddressRequest;
 import com.trancuong.ecommerce.user.dto.UserAddressResponse;
 import com.trancuong.ecommerce.user.dto.UserProfileResponse;
 import com.trancuong.ecommerce.user.exception.UserAddressNotFoundException;
+import com.trancuong.ecommerce.user.mapper.UserAddressMapper;
 import com.trancuong.ecommerce.user.repository.UserAddressRepository;
 import java.util.List;
 import java.util.UUID;
@@ -19,11 +20,12 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserProfileService {
 
     private final UserAddressRepository userAddressRepository;
+    private final UserAddressMapper userAddressMapper;
 
     public UserProfileResponse getProfile(User user) {
         UserAddressResponse defaultAddress = userAddressRepository
                 .findByUserIdAndDefaultAddressTrue(user.getId())
-                .map(this::toAddressResponse)
+                .map(userAddressMapper::toResponse)
                 .orElse(null);
 
         return new UserProfileResponse(
@@ -40,7 +42,7 @@ public class UserProfileService {
     public List<UserAddressResponse> getAddresses(User user) {
         return userAddressRepository.findByUserIdOrderByDefaultAddressDescCreatedAtDesc(user.getId())
                 .stream()
-                .map(this::toAddressResponse)
+                .map(userAddressMapper::toResponse)
                 .toList();
     }
 
@@ -62,7 +64,7 @@ public class UserProfileService {
                 defaultAddress
         );
 
-        return toAddressResponse(userAddressRepository.save(address));
+        return userAddressMapper.toResponse(userAddressRepository.save(address));
     }
 
     @Transactional
@@ -82,7 +84,7 @@ public class UserProfileService {
                 request.defaultAddress()
         );
         userAddressRepository.flush();
-        return toAddressResponse(address);
+        return userAddressMapper.toResponse(address);
     }
 
     @Transactional
@@ -100,7 +102,7 @@ public class UserProfileService {
             address.markDefault();
             userAddressRepository.flush();
         }
-        return toAddressResponse(address);
+        return userAddressMapper.toResponse(address);
     }
 
     private UserAddress getAddress(User user, UUID id) {
@@ -108,18 +110,4 @@ public class UserProfileService {
                 .orElseThrow(() -> new UserAddressNotFoundException(id));
     }
 
-    private UserAddressResponse toAddressResponse(UserAddress address) {
-        return new UserAddressResponse(
-                address.getId(),
-                address.getReceiverName(),
-                address.getReceiverPhone(),
-                address.getProvince(),
-                address.getDistrict(),
-                address.getWard(),
-                address.getDetailAddress(),
-                address.isDefaultAddress(),
-                address.getCreatedAt(),
-                address.getUpdatedAt()
-        );
-    }
 }

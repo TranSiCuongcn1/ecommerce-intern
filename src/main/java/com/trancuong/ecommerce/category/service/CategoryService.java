@@ -5,6 +5,7 @@ import com.trancuong.ecommerce.category.dto.CategoryRequest;
 import com.trancuong.ecommerce.category.dto.CategoryResponse;
 import com.trancuong.ecommerce.category.exception.CategoryNotFoundException;
 import com.trancuong.ecommerce.category.exception.DuplicateCategorySlugException;
+import com.trancuong.ecommerce.category.mapper.CategoryMapper;
 import com.trancuong.ecommerce.category.repository.CategoryRepository;
 import java.util.List;
 import java.util.UUID;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class CategoryService {
 
     private final CategoryRepository categoryRepository;
+    private final CategoryMapper categoryMapper;
 
     public List<CategoryResponse> findAll(String keyword) {
         String normalizedKeyword = normalizeKeyword(keyword);
@@ -29,12 +31,12 @@ public class CategoryService {
                         category.getName(),
                         category.getSlug()
                 ))
-                .map(this::toResponse)
+                .map(categoryMapper::toResponse)
                 .toList();
     }
 
     public CategoryResponse findById(UUID id) {
-        return toResponse(getCategory(id));
+        return categoryMapper.toResponse(getCategory(id));
     }
 
     @Transactional
@@ -45,7 +47,7 @@ public class CategoryService {
             throw new DuplicateCategorySlugException(slug);
         }
 
-        return toResponse(categoryRepository.save(new Category(name, slug)));
+        return categoryMapper.toResponse(categoryRepository.save(new Category(name, slug)));
     }
 
     @Transactional
@@ -59,7 +61,7 @@ public class CategoryService {
 
         category.update(name, slug);
         categoryRepository.flush();
-        return toResponse(category);
+        return categoryMapper.toResponse(category);
     }
 
     @Transactional
@@ -72,16 +74,6 @@ public class CategoryService {
     private Category getCategory(UUID id) {
         return categoryRepository.findById(id)
                 .orElseThrow(() -> new CategoryNotFoundException(id));
-    }
-
-    private CategoryResponse toResponse(Category category) {
-        return new CategoryResponse(
-                category.getId(),
-                category.getName(),
-                category.getSlug(),
-                category.getCreatedAt(),
-                category.getUpdatedAt()
-        );
     }
 
     private String normalizeKeyword(String keyword) {

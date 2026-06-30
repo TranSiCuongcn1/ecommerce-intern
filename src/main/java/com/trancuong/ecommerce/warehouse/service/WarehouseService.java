@@ -5,6 +5,7 @@ import com.trancuong.ecommerce.warehouse.dto.WarehouseRequest;
 import com.trancuong.ecommerce.warehouse.dto.WarehouseResponse;
 import com.trancuong.ecommerce.warehouse.exception.DuplicateWarehouseCodeException;
 import com.trancuong.ecommerce.warehouse.exception.WarehouseNotFoundException;
+import com.trancuong.ecommerce.warehouse.mapper.WarehouseMapper;
 import com.trancuong.ecommerce.warehouse.repository.WarehouseRepository;
 import java.util.List;
 import java.util.UUID;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class WarehouseService {
 
     private final WarehouseRepository warehouseRepository;
+    private final WarehouseMapper warehouseMapper;
 
     public List<WarehouseResponse> findAll(String keyword, String status) {
         String normalizedKeyword = normalizeKeyword(keyword);
@@ -33,12 +35,12 @@ public class WarehouseService {
                 ))
                 .filter(warehouse -> normalizedStatus == null
                         || warehouse.getStatus().equalsIgnoreCase(normalizedStatus))
-                .map(this::toResponse)
+                .map(warehouseMapper::toResponse)
                 .toList();
     }
 
     public WarehouseResponse findById(UUID id) {
-        return toResponse(getWarehouse(id));
+        return warehouseMapper.toResponse(getWarehouse(id));
     }
 
     @Transactional
@@ -52,7 +54,7 @@ public class WarehouseService {
             throw new DuplicateWarehouseCodeException(code);
         }
 
-        return toResponse(warehouseRepository.save(new Warehouse(code, name, address, status)));
+        return warehouseMapper.toResponse(warehouseRepository.save(new Warehouse(code, name, address, status)));
     }
 
     @Transactional
@@ -69,7 +71,7 @@ public class WarehouseService {
 
         warehouse.update(code, name, address, status);
         warehouseRepository.flush();
-        return toResponse(warehouse);
+        return warehouseMapper.toResponse(warehouse);
     }
 
     @Transactional
@@ -82,18 +84,6 @@ public class WarehouseService {
     private Warehouse getWarehouse(UUID id) {
         return warehouseRepository.findById(id)
                 .orElseThrow(() -> new WarehouseNotFoundException(id));
-    }
-
-    private WarehouseResponse toResponse(Warehouse warehouse) {
-        return new WarehouseResponse(
-                warehouse.getId(),
-                warehouse.getCode(),
-                warehouse.getName(),
-                warehouse.getAddress(),
-                warehouse.getStatus(),
-                warehouse.getCreatedAt(),
-                warehouse.getUpdatedAt()
-        );
     }
 
     private String normalizeCode(String code) {
