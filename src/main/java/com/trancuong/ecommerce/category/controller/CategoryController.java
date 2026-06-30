@@ -3,10 +3,11 @@ package com.trancuong.ecommerce.category.controller;
 import com.trancuong.ecommerce.category.dto.CategoryRequest;
 import com.trancuong.ecommerce.category.dto.CategoryResponse;
 import com.trancuong.ecommerce.category.service.CategoryService;
+import com.trancuong.ecommerce.common.api.PageResponse;
 import jakarta.validation.Valid;
-import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,10 +28,11 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @GetMapping
-    public List<CategoryResponse> getCategories(
-            @RequestParam(required = false) String keyword
+    public PageResponse<CategoryResponse> getCategories(
+            @RequestParam(required = false) String filter,
+            Pageable pageable
     ) {
-        return categoryService.findAll(keyword);
+        return categoryService.findAll(filter, pageable);
     }
 
     @GetMapping("/{id}")

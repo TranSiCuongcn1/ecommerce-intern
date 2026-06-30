@@ -1,14 +1,15 @@
 package com.trancuong.ecommerce.inventory.controller;
 
+import com.trancuong.ecommerce.common.api.PageResponse;
 import com.trancuong.ecommerce.inventory.dto.InventoryAllocationRequest;
 import com.trancuong.ecommerce.inventory.dto.InventoryAllocationResponse;
 import com.trancuong.ecommerce.inventory.dto.InventoryRequest;
 import com.trancuong.ecommerce.inventory.dto.InventoryResponse;
 import com.trancuong.ecommerce.inventory.service.InventoryService;
 import jakarta.validation.Valid;
-import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,13 +30,11 @@ public class InventoryController {
     private final InventoryService inventoryService;
 
     @GetMapping
-    public List<InventoryResponse> getInventoryItems(
-            @RequestParam(required = false) UUID productId,
-            @RequestParam(required = false) UUID warehouseId,
-            @RequestParam(required = false, defaultValue = "false") boolean availableOnly,
-            @RequestParam(required = false, defaultValue = "false") boolean lowStockOnly
+    public PageResponse<InventoryResponse> getInventoryItems(
+            @RequestParam(required = false) String filter,
+            Pageable pageable
     ) {
-        return inventoryService.findAll(productId, warehouseId, availableOnly, lowStockOnly);
+        return inventoryService.findAll(filter, pageable);
     }
 
     @GetMapping("/{id}")

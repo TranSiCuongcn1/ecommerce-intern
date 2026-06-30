@@ -7,9 +7,12 @@ import com.trancuong.ecommerce.category.exception.CategoryNotFoundException;
 import com.trancuong.ecommerce.category.exception.DuplicateCategorySlugException;
 import com.trancuong.ecommerce.category.mapper.CategoryMapper;
 import com.trancuong.ecommerce.category.repository.CategoryRepository;
-import java.util.List;
+import com.trancuong.ecommerce.common.api.PageResponse;
+import com.trancuong.ecommerce.common.api.PageableDefaults;
+import com.trancuong.ecommerce.common.api.RsqlSpecifications;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,17 +25,14 @@ public class CategoryService {
     private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
 
-    public List<CategoryResponse> findAll(String keyword) {
-        String normalizedKeyword = normalizeKeyword(keyword);
-        return categoryRepository.findAll(Sort.by(Sort.Direction.ASC, "name"))
-                .stream()
-                .filter(category -> matchesKeyword(
-                        normalizedKeyword,
-                        category.getName(),
-                        category.getSlug()
-                ))
-                .map(categoryMapper::toResponse)
-                .toList();
+    public PageResponse<CategoryResponse> findAll(String filter, Pageable pageable) {
+        Pageable sortedPageable = PageableDefaults.withDefaultSort(
+                pageable,
+                Sort.by(Sort.Direction.ASC, "name")
+        );
+        return PageResponse.from(categoryRepository
+                .findAll(RsqlSpecifications.from(filter), sortedPageable)
+                .map(categoryMapper::toResponse));
     }
 
     public CategoryResponse findById(UUID id) {
@@ -76,23 +76,4 @@ public class CategoryService {
                 .orElseThrow(() -> new CategoryNotFoundException(id));
     }
 
-    private String normalizeKeyword(String keyword) {
-        if (keyword == null || keyword.isBlank()) {
-            return null;
-        }
-        return keyword.trim().toLowerCase();
-    }
-
-    private boolean matchesKeyword(String keyword, String... values) {
-        if (keyword == null) {
-            return true;
-        }
-
-        for (String value : values) {
-            if (value != null && value.toLowerCase().contains(keyword)) {
-                return true;
-            }
-        }
-        return false;
-    }
 }

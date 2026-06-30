@@ -1,12 +1,13 @@
 package com.trancuong.ecommerce.warehouse.controller;
 
+import com.trancuong.ecommerce.common.api.PageResponse;
 import com.trancuong.ecommerce.warehouse.dto.WarehouseRequest;
 import com.trancuong.ecommerce.warehouse.dto.WarehouseResponse;
 import com.trancuong.ecommerce.warehouse.service.WarehouseService;
 import jakarta.validation.Valid;
-import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,11 +28,11 @@ public class WarehouseController {
     private final WarehouseService warehouseService;
 
     @GetMapping
-    public List<WarehouseResponse> getWarehouses(
-            @RequestParam(required = false) String keyword,
-            @RequestParam(required = false) String status
+    public PageResponse<WarehouseResponse> getWarehouses(
+            @RequestParam(required = false) String filter,
+            Pageable pageable
     ) {
-        return warehouseService.findAll(keyword, status);
+        return warehouseService.findAll(filter, pageable);
     }
 
     @GetMapping("/{id}")

@@ -1,5 +1,8 @@
 package com.trancuong.ecommerce.warehouse.service;
 
+import com.trancuong.ecommerce.common.api.PageResponse;
+import com.trancuong.ecommerce.common.api.PageableDefaults;
+import com.trancuong.ecommerce.common.api.RsqlSpecifications;
 import com.trancuong.ecommerce.warehouse.domain.Warehouse;
 import com.trancuong.ecommerce.warehouse.dto.WarehouseRequest;
 import com.trancuong.ecommerce.warehouse.dto.WarehouseResponse;
@@ -7,9 +10,9 @@ import com.trancuong.ecommerce.warehouse.exception.DuplicateWarehouseCodeExcepti
 import com.trancuong.ecommerce.warehouse.exception.WarehouseNotFoundException;
 import com.trancuong.ecommerce.warehouse.mapper.WarehouseMapper;
 import com.trancuong.ecommerce.warehouse.repository.WarehouseRepository;
-import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,21 +25,14 @@ public class WarehouseService {
     private final WarehouseRepository warehouseRepository;
     private final WarehouseMapper warehouseMapper;
 
-    public List<WarehouseResponse> findAll(String keyword, String status) {
-        String normalizedKeyword = normalizeKeyword(keyword);
-        String normalizedStatus = normalizeOptionalStatus(status);
-        return warehouseRepository.findAll(Sort.by(Sort.Direction.ASC, "name"))
-                .stream()
-                .filter(warehouse -> matchesKeyword(
-                        normalizedKeyword,
-                        warehouse.getCode(),
-                        warehouse.getName(),
-                        warehouse.getAddress()
-                ))
-                .filter(warehouse -> normalizedStatus == null
-                        || warehouse.getStatus().equalsIgnoreCase(normalizedStatus))
-                .map(warehouseMapper::toResponse)
-                .toList();
+    public PageResponse<WarehouseResponse> findAll(String filter, Pageable pageable) {
+        Pageable sortedPageable = PageableDefaults.withDefaultSort(
+                pageable,
+                Sort.by(Sort.Direction.ASC, "name")
+        );
+        return PageResponse.from(warehouseRepository
+                .findAll(RsqlSpecifications.from(filter), sortedPageable)
+                .map(warehouseMapper::toResponse));
     }
 
     public WarehouseResponse findById(UUID id) {
@@ -94,37 +90,10 @@ public class WarehouseService {
         return status.trim().toUpperCase();
     }
 
-    private String normalizeOptionalStatus(String status) {
-        if (status == null || status.isBlank()) {
-            return null;
-        }
-        return normalizeStatus(status);
-    }
-
     private String normalizeAddress(String address) {
         if (address == null || address.isBlank()) {
             return null;
         }
         return address.trim();
-    }
-
-    private String normalizeKeyword(String keyword) {
-        if (keyword == null || keyword.isBlank()) {
-            return null;
-        }
-        return keyword.trim().toLowerCase();
-    }
-
-    private boolean matchesKeyword(String keyword, String... values) {
-        if (keyword == null) {
-            return true;
-        }
-
-        for (String value : values) {
-            if (value != null && value.toLowerCase().contains(keyword)) {
-                return true;
-            }
-        }
-        return false;
     }
 }

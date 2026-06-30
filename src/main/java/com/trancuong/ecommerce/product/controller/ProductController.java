@@ -1,12 +1,13 @@
 package com.trancuong.ecommerce.product.controller;
 
+import com.trancuong.ecommerce.common.api.PageResponse;
 import com.trancuong.ecommerce.product.dto.ProductRequest;
 import com.trancuong.ecommerce.product.dto.ProductResponse;
 import com.trancuong.ecommerce.product.service.ProductService;
 import jakarta.validation.Valid;
-import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,12 +28,11 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping
-    public List<ProductResponse> getProducts(
-            @RequestParam(required = false) String keyword,
-            @RequestParam(required = false) UUID categoryId,
-            @RequestParam(required = false) String status
+    public PageResponse<ProductResponse> getProducts(
+            @RequestParam(required = false) String filter,
+            Pageable pageable
     ) {
-        return productService.findAll(keyword, categoryId, status);
+        return productService.findAll(filter, pageable);
     }
 
     @GetMapping("/{id}")

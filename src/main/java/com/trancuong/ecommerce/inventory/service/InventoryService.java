@@ -1,5 +1,8 @@
 package com.trancuong.ecommerce.inventory.service;
 
+import com.trancuong.ecommerce.common.api.PageResponse;
+import com.trancuong.ecommerce.common.api.PageableDefaults;
+import com.trancuong.ecommerce.common.api.RsqlSpecifications;
 import com.trancuong.ecommerce.inventory.domain.Inventory;
 import com.trancuong.ecommerce.inventory.dto.InventoryAllocationRequest;
 import com.trancuong.ecommerce.inventory.dto.InventoryAllocationResponse;
@@ -18,9 +21,9 @@ import com.trancuong.ecommerce.warehouse.domain.Warehouse;
 import com.trancuong.ecommerce.warehouse.exception.WarehouseNotFoundException;
 import com.trancuong.ecommerce.warehouse.repository.WarehouseRepository;
 import java.util.Comparator;
-import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,23 +37,14 @@ public class InventoryService {
     private final ProductRepository productRepository;
     private final WarehouseRepository warehouseRepository;
 
-    public List<InventoryResponse> findAll(
-            UUID productId,
-            UUID warehouseId,
-            boolean availableOnly,
-            boolean lowStockOnly
-    ) {
-        return inventoryRepository.findAll(Sort.by(Sort.Direction.DESC, "updatedAt"))
-                .stream()
-                .filter(inventory -> productId == null
-                        || inventory.getProduct().getId().equals(productId))
-                .filter(inventory -> warehouseId == null
-                        || inventory.getWarehouse().getId().equals(warehouseId))
-                .filter(inventory -> !availableOnly || inventory.getAvailableQuantity() > 0)
-                .filter(inventory -> !lowStockOnly
-                        || inventory.getQuantityOnHand() <= inventory.getReorderLevel())
-                .map(this::toResponse)
-                .toList();
+    public PageResponse<InventoryResponse> findAll(String filter, Pageable pageable) {
+        Pageable sortedPageable = PageableDefaults.withDefaultSort(
+                pageable,
+                Sort.by(Sort.Direction.DESC, "updatedAt")
+        );
+        return PageResponse.from(inventoryRepository
+                .findAll(RsqlSpecifications.from(filter), sortedPageable)
+                .map(this::toResponse));
     }
 
     public InventoryResponse findById(UUID id) {
