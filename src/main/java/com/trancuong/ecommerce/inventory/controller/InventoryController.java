@@ -9,6 +9,7 @@ import com.trancuong.ecommerce.inventory.service.InventoryService;
 import jakarta.validation.Valid;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -32,7 +33,7 @@ public class InventoryController {
     @GetMapping
     public PageResponse<InventoryResponse> getInventoryItems(
             @RequestParam(required = false) String filter,
-            Pageable pageable
+            @ParameterObject Pageable pageable
     ) {
         return inventoryService.findAll(filter, pageable);
     }

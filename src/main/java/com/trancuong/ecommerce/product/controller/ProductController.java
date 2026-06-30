@@ -7,6 +7,7 @@ import com.trancuong.ecommerce.product.service.ProductService;
 import jakarta.validation.Valid;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -30,7 +31,7 @@ public class ProductController {
     @GetMapping
     public PageResponse<ProductResponse> getProducts(
             @RequestParam(required = false) String filter,
-            Pageable pageable
+            @ParameterObject Pageable pageable
     ) {
         return productService.findAll(filter, pageable);
     }
