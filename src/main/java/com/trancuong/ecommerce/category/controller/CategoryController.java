@@ -3,6 +3,7 @@ package com.trancuong.ecommerce.category.controller;
 import com.trancuong.ecommerce.category.dto.CategoryRequest;
 import com.trancuong.ecommerce.category.dto.CategoryResponse;
 import com.trancuong.ecommerce.category.service.CategoryService;
+import com.trancuong.ecommerce.common.api.ApiResponse;
 import com.trancuong.ecommerce.common.api.PageResponse;
 import jakarta.validation.Valid;
 import java.util.UUID;
@@ -29,35 +30,55 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @GetMapping
-    public PageResponse<CategoryResponse> getCategories(
+    public ApiResponse<PageResponse<CategoryResponse>> getCategories(
             @RequestParam(required = false) String filter,
             @ParameterObject Pageable pageable
     ) {
-        return categoryService.findAll(filter, pageable);
+        return ApiResponse.success(
+                HttpStatus.OK.value(),
+                "Get categories successfully",
+                categoryService.findAll(filter, pageable)
+        );
     }
 
     @GetMapping("/{id}")
-    public CategoryResponse getCategory(@PathVariable UUID id) {
-        return categoryService.findById(id);
+    public ApiResponse<CategoryResponse> getCategory(@PathVariable UUID id) {
+        return ApiResponse.success(
+                HttpStatus.OK.value(),
+                "Get category successfully",
+                categoryService.findById(id)
+        );
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public CategoryResponse createCategory(@Valid @RequestBody CategoryRequest request) {
-        return categoryService.create(request);
+    public ApiResponse<CategoryResponse> createCategory(@Valid @RequestBody CategoryRequest request) {
+        return ApiResponse.success(
+                HttpStatus.CREATED.value(),
+                "Create category successfully",
+                categoryService.create(request)
+        );
     }
 
     @PutMapping("/{id}")
-    public CategoryResponse updateCategory(
+    public ApiResponse<CategoryResponse> updateCategory(
             @PathVariable UUID id,
             @Valid @RequestBody CategoryRequest request
     ) {
-        return categoryService.update(id, request);
+        return ApiResponse.success(
+                HttpStatus.OK.value(),
+                "Update category successfully",
+                categoryService.update(id, request)
+        );
     }
 
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteCategory(@PathVariable UUID id) {
+    public ApiResponse<Void> deleteCategory(@PathVariable UUID id) {
         categoryService.delete(id);
+        return ApiResponse.success(
+                HttpStatus.OK.value(),
+                "Delete category successfully",
+                null
+        );
     }
 }

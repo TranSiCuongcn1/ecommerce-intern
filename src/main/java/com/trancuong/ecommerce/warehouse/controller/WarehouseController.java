@@ -1,5 +1,6 @@
 package com.trancuong.ecommerce.warehouse.controller;
 
+import com.trancuong.ecommerce.common.api.ApiResponse;
 import com.trancuong.ecommerce.common.api.PageResponse;
 import com.trancuong.ecommerce.warehouse.dto.WarehouseRequest;
 import com.trancuong.ecommerce.warehouse.dto.WarehouseResponse;
@@ -29,35 +30,55 @@ public class WarehouseController {
     private final WarehouseService warehouseService;
 
     @GetMapping
-    public PageResponse<WarehouseResponse> getWarehouses(
+    public ApiResponse<PageResponse<WarehouseResponse>> getWarehouses(
             @RequestParam(required = false) String filter,
             @ParameterObject Pageable pageable
     ) {
-        return warehouseService.findAll(filter, pageable);
+        return ApiResponse.success(
+                HttpStatus.OK.value(),
+                "Get warehouses successfully",
+                warehouseService.findAll(filter, pageable)
+        );
     }
 
     @GetMapping("/{id}")
-    public WarehouseResponse getWarehouse(@PathVariable UUID id) {
-        return warehouseService.findById(id);
+    public ApiResponse<WarehouseResponse> getWarehouse(@PathVariable UUID id) {
+        return ApiResponse.success(
+                HttpStatus.OK.value(),
+                "Get warehouse successfully",
+                warehouseService.findById(id)
+        );
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public WarehouseResponse createWarehouse(@Valid @RequestBody WarehouseRequest request) {
-        return warehouseService.create(request);
+    public ApiResponse<WarehouseResponse> createWarehouse(@Valid @RequestBody WarehouseRequest request) {
+        return ApiResponse.success(
+                HttpStatus.CREATED.value(),
+                "Create warehouse successfully",
+                warehouseService.create(request)
+        );
     }
 
     @PutMapping("/{id}")
-    public WarehouseResponse updateWarehouse(
+    public ApiResponse<WarehouseResponse> updateWarehouse(
             @PathVariable UUID id,
             @Valid @RequestBody WarehouseRequest request
     ) {
-        return warehouseService.update(id, request);
+        return ApiResponse.success(
+                HttpStatus.OK.value(),
+                "Update warehouse successfully",
+                warehouseService.update(id, request)
+        );
     }
 
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteWarehouse(@PathVariable UUID id) {
+    public ApiResponse<Void> deleteWarehouse(@PathVariable UUID id) {
         warehouseService.delete(id);
+        return ApiResponse.success(
+                HttpStatus.OK.value(),
+                "Delete warehouse successfully",
+                null
+        );
     }
 }

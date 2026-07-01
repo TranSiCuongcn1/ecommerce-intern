@@ -13,8 +13,6 @@ import com.trancuong.ecommerce.product.exception.ProductNotFoundException;
 import com.trancuong.ecommerce.user.exception.UserAddressNotFoundException;
 import com.trancuong.ecommerce.warehouse.exception.DuplicateWarehouseCodeException;
 import com.trancuong.ecommerce.warehouse.exception.WarehouseNotFoundException;
-import jakarta.servlet.http.HttpServletRequest;
-import java.time.Instant;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,140 +24,119 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(CategoryNotFoundException.class)
-    public ResponseEntity<ApiError> handleNotFound(
-            CategoryNotFoundException exception,
-            HttpServletRequest request
+    public ResponseEntity<ApiResponse<Void>> handleNotFound(
+            CategoryNotFoundException exception
     ) {
-        return response(HttpStatus.NOT_FOUND, exception.getMessage(), request);
+        return response(HttpStatus.NOT_FOUND, exception.getMessage());
     }
 
     @ExceptionHandler(WarehouseNotFoundException.class)
-    public ResponseEntity<ApiError> handleNotFound(
-            WarehouseNotFoundException exception,
-            HttpServletRequest request
+    public ResponseEntity<ApiResponse<Void>> handleNotFound(
+            WarehouseNotFoundException exception
     ) {
-        return response(HttpStatus.NOT_FOUND, exception.getMessage(), request);
+        return response(HttpStatus.NOT_FOUND, exception.getMessage());
     }
 
     @ExceptionHandler(ProductNotFoundException.class)
-    public ResponseEntity<ApiError> handleNotFound(
-            ProductNotFoundException exception,
-            HttpServletRequest request
+    public ResponseEntity<ApiResponse<Void>> handleNotFound(
+            ProductNotFoundException exception
     ) {
-        return response(HttpStatus.NOT_FOUND, exception.getMessage(), request);
+        return response(HttpStatus.NOT_FOUND, exception.getMessage());
     }
 
     @ExceptionHandler(InventoryNotFoundException.class)
-    public ResponseEntity<ApiError> handleNotFound(
-            InventoryNotFoundException exception,
-            HttpServletRequest request
+    public ResponseEntity<ApiResponse<Void>> handleNotFound(
+            InventoryNotFoundException exception
     ) {
-        return response(HttpStatus.NOT_FOUND, exception.getMessage(), request);
+        return response(HttpStatus.NOT_FOUND, exception.getMessage());
     }
 
     @ExceptionHandler(UserAddressNotFoundException.class)
-    public ResponseEntity<ApiError> handleNotFound(
-            UserAddressNotFoundException exception,
-            HttpServletRequest request
+    public ResponseEntity<ApiResponse<Void>> handleNotFound(
+            UserAddressNotFoundException exception
     ) {
-        return response(HttpStatus.NOT_FOUND, exception.getMessage(), request);
+        return response(HttpStatus.NOT_FOUND, exception.getMessage());
     }
 
     @ExceptionHandler(DuplicateCategorySlugException.class)
-    public ResponseEntity<ApiError> handleDuplicateSlug(
-            DuplicateCategorySlugException exception,
-            HttpServletRequest request
+    public ResponseEntity<ApiResponse<Void>> handleDuplicateSlug(
+            DuplicateCategorySlugException exception
     ) {
-        return response(HttpStatus.CONFLICT, exception.getMessage(), request);
+        return response(HttpStatus.CONFLICT, exception.getMessage());
     }
 
     @ExceptionHandler(DuplicateWarehouseCodeException.class)
-    public ResponseEntity<ApiError> handleDuplicateCode(
-            DuplicateWarehouseCodeException exception,
-            HttpServletRequest request
+    public ResponseEntity<ApiResponse<Void>> handleDuplicateCode(
+            DuplicateWarehouseCodeException exception
     ) {
-        return response(HttpStatus.CONFLICT, exception.getMessage(), request);
+        return response(HttpStatus.CONFLICT, exception.getMessage());
     }
 
     @ExceptionHandler(DuplicateProductSlugException.class)
-    public ResponseEntity<ApiError> handleDuplicateSlug(
-            DuplicateProductSlugException exception,
-            HttpServletRequest request
+    public ResponseEntity<ApiResponse<Void>> handleDuplicateSlug(
+            DuplicateProductSlugException exception
     ) {
-        return response(HttpStatus.CONFLICT, exception.getMessage(), request);
+        return response(HttpStatus.CONFLICT, exception.getMessage());
     }
 
     @ExceptionHandler(DuplicateInventoryException.class)
-    public ResponseEntity<ApiError> handleDuplicateInventory(
-            DuplicateInventoryException exception,
-            HttpServletRequest request
+    public ResponseEntity<ApiResponse<Void>> handleDuplicateInventory(
+            DuplicateInventoryException exception
     ) {
-        return response(HttpStatus.CONFLICT, exception.getMessage(), request);
+        return response(HttpStatus.CONFLICT, exception.getMessage());
     }
 
     @ExceptionHandler(InsufficientInventoryException.class)
-    public ResponseEntity<ApiError> handleInsufficientInventory(
-            InsufficientInventoryException exception,
-            HttpServletRequest request
+    public ResponseEntity<ApiResponse<Void>> handleInsufficientInventory(
+            InsufficientInventoryException exception
     ) {
-        return response(HttpStatus.CONFLICT, exception.getMessage(), request);
+        return response(HttpStatus.CONFLICT, exception.getMessage());
     }
 
     @ExceptionHandler(DuplicateEmailException.class)
-    public ResponseEntity<ApiError> handleDuplicateEmail(
-            DuplicateEmailException exception,
-            HttpServletRequest request
+    public ResponseEntity<ApiResponse<Void>> handleDuplicateEmail(
+            DuplicateEmailException exception
     ) {
-        return response(HttpStatus.CONFLICT, exception.getMessage(), request);
+        return response(HttpStatus.CONFLICT, exception.getMessage());
     }
 
     @ExceptionHandler({
             InvalidCredentialsException.class,
             InvalidRefreshTokenException.class
     })
-    public ResponseEntity<ApiError> handleUnauthorized(
-            RuntimeException exception,
-            HttpServletRequest request
+    public ResponseEntity<ApiResponse<Void>> handleUnauthorized(
+            RuntimeException exception
     ) {
-        return response(HttpStatus.UNAUTHORIZED, exception.getMessage(), request);
+        return response(HttpStatus.UNAUTHORIZED, exception.getMessage());
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<ApiError> handleDataIntegrity(
-            DataIntegrityViolationException exception,
-            HttpServletRequest request
+    public ResponseEntity<ApiResponse<Void>> handleDataIntegrity(
+            DataIntegrityViolationException exception
     ) {
         return response(
                 HttpStatus.CONFLICT,
-                "The operation conflicts with existing data",
-                request
+                "The operation conflicts with existing data"
         );
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiError> handleValidation(
-            MethodArgumentNotValidException exception,
-            HttpServletRequest request
+    public ResponseEntity<ApiResponse<Void>> handleValidation(
+            MethodArgumentNotValidException exception
     ) {
         String message = exception.getBindingResult().getFieldErrors().stream()
                 .findFirst()
                 .map(error -> error.getField() + " " + error.getDefaultMessage())
                 .orElse("Request validation failed");
-        return response(HttpStatus.BAD_REQUEST, message, request);
+        return response(HttpStatus.BAD_REQUEST, message);
     }
 
-    private ResponseEntity<ApiError> response(
+    private ResponseEntity<ApiResponse<Void>> response(
             HttpStatus status,
-            String message,
-            HttpServletRequest request
+            String message
     ) {
-        ApiError error = new ApiError(
-                Instant.now(),
-                status.value(),
-                status.getReasonPhrase(),
-                message,
-                request.getRequestURI()
-        );
-        return ResponseEntity.status(status).body(error);
+        return ResponseEntity
+                .status(status)
+                .body(ApiResponse.error(status.value(), message));
     }
 }

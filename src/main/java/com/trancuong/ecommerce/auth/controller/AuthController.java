@@ -6,6 +6,7 @@ import com.trancuong.ecommerce.auth.dto.LogoutRequest;
 import com.trancuong.ecommerce.auth.dto.RefreshTokenRequest;
 import com.trancuong.ecommerce.auth.dto.RegisterRequest;
 import com.trancuong.ecommerce.auth.service.AuthService;
+import com.trancuong.ecommerce.common.api.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -25,26 +26,42 @@ public class AuthController {
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
-    public AuthResponse register(@Valid @RequestBody RegisterRequest request) {
-        return authService.register(request);
+    public ApiResponse<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
+        return ApiResponse.success(
+                HttpStatus.CREATED.value(),
+                "Register successfully",
+                authService.register(request)
+        );
     }
 
     @PostMapping("/login")
-    public AuthResponse login(@Valid @RequestBody LoginRequest request) {
-        return authService.login(request);
+    public ApiResponse<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
+        return ApiResponse.success(
+                HttpStatus.OK.value(),
+                "Login successfully",
+                authService.login(request)
+        );
     }
 
     @PostMapping("/refresh")
-    public AuthResponse refresh(@Valid @RequestBody RefreshTokenRequest request) {
-        return authService.refresh(request);
+    public ApiResponse<AuthResponse> refresh(@Valid @RequestBody RefreshTokenRequest request) {
+        return ApiResponse.success(
+                HttpStatus.OK.value(),
+                "Refresh token successfully",
+                authService.refresh(request)
+        );
     }
 
     @PostMapping("/logout")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void logout(
+    public ApiResponse<Void> logout(
             @RequestHeader(value = "Authorization", required = false) String authorizationHeader,
             @Valid @RequestBody LogoutRequest request
     ) {
         authService.logout(authorizationHeader, request);
+        return ApiResponse.success(
+                HttpStatus.OK.value(),
+                "Logout successfully",
+                null
+        );
     }
 }

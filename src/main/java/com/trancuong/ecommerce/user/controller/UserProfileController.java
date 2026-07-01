@@ -1,5 +1,6 @@
 package com.trancuong.ecommerce.user.controller;
 
+import com.trancuong.ecommerce.common.api.ApiResponse;
 import com.trancuong.ecommerce.user.domain.User;
 import com.trancuong.ecommerce.user.dto.UserAddressRequest;
 import com.trancuong.ecommerce.user.dto.UserAddressResponse;
@@ -30,47 +31,71 @@ public class UserProfileController {
     private final UserProfileService userProfileService;
 
     @GetMapping
-    public UserProfileResponse getProfile(@AuthenticationPrincipal User user) {
-        return userProfileService.getProfile(user);
+    public ApiResponse<UserProfileResponse> getProfile(@AuthenticationPrincipal User user) {
+        return ApiResponse.success(
+                HttpStatus.OK.value(),
+                "Get profile successfully",
+                userProfileService.getProfile(user)
+        );
     }
 
     @GetMapping("/addresses")
-    public List<UserAddressResponse> getAddresses(@AuthenticationPrincipal User user) {
-        return userProfileService.getAddresses(user);
+    public ApiResponse<List<UserAddressResponse>> getAddresses(@AuthenticationPrincipal User user) {
+        return ApiResponse.success(
+                HttpStatus.OK.value(),
+                "Get addresses successfully",
+                userProfileService.getAddresses(user)
+        );
     }
 
     @PostMapping("/addresses")
     @ResponseStatus(HttpStatus.CREATED)
-    public UserAddressResponse createAddress(
+    public ApiResponse<UserAddressResponse> createAddress(
             @AuthenticationPrincipal User user,
             @Valid @RequestBody UserAddressRequest request
     ) {
-        return userProfileService.createAddress(user, request);
+        return ApiResponse.success(
+                HttpStatus.CREATED.value(),
+                "Create address successfully",
+                userProfileService.createAddress(user, request)
+        );
     }
 
     @PutMapping("/addresses/{id}")
-    public UserAddressResponse updateAddress(
+    public ApiResponse<UserAddressResponse> updateAddress(
             @AuthenticationPrincipal User user,
             @PathVariable UUID id,
             @Valid @RequestBody UserAddressRequest request
     ) {
-        return userProfileService.updateAddress(user, id, request);
+        return ApiResponse.success(
+                HttpStatus.OK.value(),
+                "Update address successfully",
+                userProfileService.updateAddress(user, id, request)
+        );
     }
 
     @DeleteMapping("/addresses/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteAddress(
+    public ApiResponse<Void> deleteAddress(
             @AuthenticationPrincipal User user,
             @PathVariable UUID id
     ) {
         userProfileService.deleteAddress(user, id);
+        return ApiResponse.success(
+                HttpStatus.OK.value(),
+                "Delete address successfully",
+                null
+        );
     }
 
     @PatchMapping("/addresses/{id}/default")
-    public UserAddressResponse setDefaultAddress(
+    public ApiResponse<UserAddressResponse> setDefaultAddress(
             @AuthenticationPrincipal User user,
             @PathVariable UUID id
     ) {
-        return userProfileService.setDefaultAddress(user, id);
+        return ApiResponse.success(
+                HttpStatus.OK.value(),
+                "Set default address successfully",
+                userProfileService.setDefaultAddress(user, id)
+        );
     }
 }

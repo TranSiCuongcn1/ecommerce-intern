@@ -1,5 +1,6 @@
 package com.trancuong.ecommerce.product.controller;
 
+import com.trancuong.ecommerce.common.api.ApiResponse;
 import com.trancuong.ecommerce.common.api.PageResponse;
 import com.trancuong.ecommerce.product.dto.ProductRequest;
 import com.trancuong.ecommerce.product.dto.ProductResponse;
@@ -29,35 +30,55 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping
-    public PageResponse<ProductResponse> getProducts(
+    public ApiResponse<PageResponse<ProductResponse>> getProducts(
             @RequestParam(required = false) String filter,
             @ParameterObject Pageable pageable
     ) {
-        return productService.findAll(filter, pageable);
+        return ApiResponse.success(
+                HttpStatus.OK.value(),
+                "Get products successfully",
+                productService.findAll(filter, pageable)
+        );
     }
 
     @GetMapping("/{id}")
-    public ProductResponse getProduct(@PathVariable UUID id) {
-        return productService.findById(id);
+    public ApiResponse<ProductResponse> getProduct(@PathVariable UUID id) {
+        return ApiResponse.success(
+                HttpStatus.OK.value(),
+                "Get product successfully",
+                productService.findById(id)
+        );
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ProductResponse createProduct(@Valid @RequestBody ProductRequest request) {
-        return productService.create(request);
+    public ApiResponse<ProductResponse> createProduct(@Valid @RequestBody ProductRequest request) {
+        return ApiResponse.success(
+                HttpStatus.CREATED.value(),
+                "Create product successfully",
+                productService.create(request)
+        );
     }
 
     @PutMapping("/{id}")
-    public ProductResponse updateProduct(
+    public ApiResponse<ProductResponse> updateProduct(
             @PathVariable UUID id,
             @Valid @RequestBody ProductRequest request
     ) {
-        return productService.update(id, request);
+        return ApiResponse.success(
+                HttpStatus.OK.value(),
+                "Update product successfully",
+                productService.update(id, request)
+        );
     }
 
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteProduct(@PathVariable UUID id) {
+    public ApiResponse<Void> deleteProduct(@PathVariable UUID id) {
         productService.delete(id);
+        return ApiResponse.success(
+                HttpStatus.OK.value(),
+                "Delete product successfully",
+                null
+        );
     }
 }
