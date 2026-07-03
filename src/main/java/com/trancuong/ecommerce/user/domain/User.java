@@ -39,6 +39,9 @@ public class User {
     @Column(nullable = false, length = 30)
     private Role role;
 
+    @Column(name = "current_refresh_token_id", length = 36)
+    private String currentRefreshTokenId;
+
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -55,5 +58,13 @@ public class User {
         this.email = email;
         this.passwordHash = passwordHash;
         this.role = role;
+    }
+
+    public void updateCurrentRefreshTokenId(String currentRefreshTokenId) {
+        this.currentRefreshTokenId = currentRefreshTokenId;
+    }
+
+    public void clearCurrentRefreshTokenId() {
+        this.currentRefreshTokenId = null;
     }
 }

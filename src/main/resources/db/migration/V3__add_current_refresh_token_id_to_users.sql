@@ -1,0 +1,2 @@
+ALTER TABLE users
+    ADD COLUMN current_refresh_token_id VARCHAR(36);

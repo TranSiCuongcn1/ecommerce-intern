@@ -12,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
@@ -53,11 +52,8 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ApiResponse<Void> logout(
-            @RequestHeader(value = "Authorization", required = false) String authorizationHeader,
-            @Valid @RequestBody LogoutRequest request
-    ) {
-        authService.logout(authorizationHeader, request);
+    public ApiResponse<Void> logout(@Valid @RequestBody LogoutRequest request) {
+        authService.logout(request);
         return ApiResponse.success(
                 HttpStatus.OK.value(),
                 "Logout successfully",
