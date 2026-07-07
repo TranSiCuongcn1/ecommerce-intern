@@ -39,6 +39,9 @@ public class User {
     @Column(nullable = false, length = 30)
     private Role role;
 
+    @Column(name = "current_access_token_id", length = 36)
+    private String currentAccessTokenId;
+
     @Column(name = "current_refresh_token_id", length = 36)
     private String currentRefreshTokenId;
 
@@ -60,8 +63,16 @@ public class User {
         this.role = role;
     }
 
+    public void updateCurrentAccessTokenId(String currentAccessTokenId) {
+        this.currentAccessTokenId = currentAccessTokenId;
+    }
+
     public void updateCurrentRefreshTokenId(String currentRefreshTokenId) {
         this.currentRefreshTokenId = currentRefreshTokenId;
+    }
+
+    public void clearCurrentAccessTokenId() {
+        this.currentAccessTokenId = null;
     }
 
     public void clearCurrentRefreshTokenId() {

@@ -86,12 +86,14 @@ public class AuthService {
         if (!Objects.equals(user.getCurrentRefreshTokenId(), jwtService.extractTokenId(refreshToken))) {
             throw new InvalidRefreshTokenException();
         }
+        user.clearCurrentAccessTokenId();
         user.clearCurrentRefreshTokenId();
     }
 
     private AuthResponse toAuthResponse(User user) {
         String accessToken = jwtService.generateAccessToken(user);
         String refreshToken = jwtService.generateRefreshToken(user);
+        user.updateCurrentAccessTokenId(jwtService.extractTokenId(accessToken));
         user.updateCurrentRefreshTokenId(jwtService.extractTokenId(refreshToken));
 
         return new AuthResponse(

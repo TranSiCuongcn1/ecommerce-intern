@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -44,7 +45,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String email = jwtService.extractEmail(token);
         if (SecurityContextHolder.getContext().getAuthentication() == null) {
-            userRepository.findByEmailIgnoreCase(email).ifPresent(user -> authenticate(request, user));
+            userRepository.findByEmailIgnoreCase(email)
+                    .filter(user -> Objects.equals(user.getCurrentAccessTokenId(), jwtService.extractTokenId(token)))
+                    .ifPresent(user -> authenticate(request, user));
         }
 
         filterChain.doFilter(request, response);
