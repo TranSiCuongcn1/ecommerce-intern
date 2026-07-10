@@ -33,7 +33,7 @@ ecommerce-intern/
         │       ├── product/     # Product CRUD
         │       ├── warehouse/   # Warehouse CRUD
         │       ├── inventory/   # Stock CRUD and inventory allocation
-        │       ├── cart/        # Cart stub endpoint
+        │       ├── cart/        # Current customer cart
         │       ├── order/       # Checkout stub endpoint
         │       ├── media/       # Admin media upload stub endpoint
         │       ├── security/    # JWT filter and security config
@@ -341,7 +341,12 @@ PUT    /api/me/addresses/{id}
 PATCH  /api/me/addresses/{id}/default
 DELETE /api/me/addresses/{id}
 
-GET  /api/cart
+GET    /api/cart
+POST   /api/cart/items
+PUT    /api/cart/items/{id}
+DELETE /api/cart/items/{id}
+DELETE /api/cart
+
 POST /api/orders/checkout
 ```
 
@@ -358,7 +363,6 @@ Note: register currently creates `CUSTOMER` users only. There is no public API t
 These endpoints exist but currently return placeholder responses:
 
 ```text
-GET  /api/cart
 POST /api/orders/checkout
 POST /api/admin/media/upload
 ```

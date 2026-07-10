@@ -396,12 +396,70 @@ DELETE /api/inventory/{id}
 
 Expected: `204 No Content`.
 
-## 7. TODO Endpoints
+## 7. Cart Module
+
+### Get Cart
+
+```http
+GET /api/cart
+```
+
+Expected: `200 OK`.
+
+### Add Cart Item
+
+```http
+POST /api/cart/items
+```
+
+Body:
+
+```json
+{
+  "productId": "<productId>",
+  "quantity": 2
+}
+```
+
+Expected: `201 Created`. Copy returned item `id` as `cartItemId`.
+
+### Update Cart Item Quantity
+
+```http
+PUT /api/cart/items/{id}
+```
+
+Body:
+
+```json
+{
+  "quantity": 3
+}
+```
+
+Expected: `200 OK`.
+
+### Remove Cart Item
+
+```http
+DELETE /api/cart/items/{id}
+```
+
+Expected: `200 OK`.
+
+### Clear Cart
+
+```http
+DELETE /api/cart
+```
+
+Expected: `200 OK`.
+
+## 8. TODO Endpoints
 
 These endpoints exist but still return placeholder responses.
 
 ```http
-GET /api/cart
 POST /api/orders/checkout
 POST /api/admin/media/upload
 ```

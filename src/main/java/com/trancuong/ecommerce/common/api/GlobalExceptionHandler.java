@@ -3,6 +3,8 @@ package com.trancuong.ecommerce.common.api;
 import com.trancuong.ecommerce.auth.exception.DuplicateEmailException;
 import com.trancuong.ecommerce.auth.exception.InvalidCredentialsException;
 import com.trancuong.ecommerce.auth.exception.InvalidRefreshTokenException;
+import com.trancuong.ecommerce.cart.exception.CartItemNotFoundException;
+import com.trancuong.ecommerce.cart.exception.ProductNotAvailableForCartException;
 import com.trancuong.ecommerce.category.exception.CategoryNotFoundException;
 import com.trancuong.ecommerce.category.exception.DuplicateCategorySlugException;
 import com.trancuong.ecommerce.inventory.exception.DuplicateInventoryException;
@@ -58,6 +60,13 @@ public class GlobalExceptionHandler {
         return response(HttpStatus.NOT_FOUND, exception.getMessage());
     }
 
+    @ExceptionHandler(CartItemNotFoundException.class)
+    public ResponseEntity<ApiResponse<Void>> handleNotFound(
+            CartItemNotFoundException exception
+    ) {
+        return response(HttpStatus.NOT_FOUND, exception.getMessage());
+    }
+
     @ExceptionHandler(DuplicateCategorySlugException.class)
     public ResponseEntity<ApiResponse<Void>> handleDuplicateSlug(
             DuplicateCategorySlugException exception
@@ -89,6 +98,13 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(InsufficientInventoryException.class)
     public ResponseEntity<ApiResponse<Void>> handleInsufficientInventory(
             InsufficientInventoryException exception
+    ) {
+        return response(HttpStatus.CONFLICT, exception.getMessage());
+    }
+
+    @ExceptionHandler(ProductNotAvailableForCartException.class)
+    public ResponseEntity<ApiResponse<Void>> handleProductNotAvailableForCart(
+            ProductNotAvailableForCartException exception
     ) {
         return response(HttpStatus.CONFLICT, exception.getMessage());
     }
