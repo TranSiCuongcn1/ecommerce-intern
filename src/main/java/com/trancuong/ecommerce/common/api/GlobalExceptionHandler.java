@@ -12,6 +12,7 @@ import com.trancuong.ecommerce.inventory.exception.InsufficientInventoryExceptio
 import com.trancuong.ecommerce.inventory.exception.InventoryNotFoundException;
 import com.trancuong.ecommerce.order.exception.CheckoutAddressNotFoundException;
 import com.trancuong.ecommerce.order.exception.EmptyCartException;
+import com.trancuong.ecommerce.order.exception.OrderNotFoundException;
 import com.trancuong.ecommerce.product.exception.DuplicateProductSlugException;
 import com.trancuong.ecommerce.product.exception.ProductNotFoundException;
 import com.trancuong.ecommerce.user.exception.UserAddressNotFoundException;
@@ -123,6 +124,13 @@ public class GlobalExceptionHandler {
             CheckoutAddressNotFoundException exception
     ) {
         return response(HttpStatus.BAD_REQUEST, exception.getMessage());
+    }
+
+    @ExceptionHandler(OrderNotFoundException.class)
+    public ResponseEntity<ApiResponse<Void>> handleNotFound(
+            OrderNotFoundException exception
+    ) {
+        return response(HttpStatus.NOT_FOUND, exception.getMessage());
     }
 
     @ExceptionHandler(DuplicateEmailException.class)

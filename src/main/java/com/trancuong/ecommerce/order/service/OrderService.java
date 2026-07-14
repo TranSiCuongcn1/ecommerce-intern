@@ -3,6 +3,8 @@ package com.trancuong.ecommerce.order.service;
 import com.trancuong.ecommerce.cart.domain.CartItem;
 import com.trancuong.ecommerce.cart.exception.ProductNotAvailableForCartException;
 import com.trancuong.ecommerce.cart.repository.CartItemRepository;
+import com.trancuong.ecommerce.common.api.PageResponse;
+import com.trancuong.ecommerce.common.api.PageableDefaults;
 import com.trancuong.ecommerce.inventory.domain.Inventory;
 import com.trancuong.ecommerce.inventory.exception.InsufficientInventoryException;
 import com.trancuong.ecommerce.inventory.repository.InventoryRepository;
@@ -16,6 +18,7 @@ import com.trancuong.ecommerce.order.dto.OrderItemResponse.WarehouseSummary;
 import com.trancuong.ecommerce.order.dto.OrderResponse;
 import com.trancuong.ecommerce.order.exception.CheckoutAddressNotFoundException;
 import com.trancuong.ecommerce.order.exception.EmptyCartException;
+import com.trancuong.ecommerce.order.exception.OrderNotFoundException;
 import com.trancuong.ecommerce.order.repository.OrderItemRepository;
 import com.trancuong.ecommerce.order.repository.OrderRepository;
 import com.trancuong.ecommerce.order.repository.PaymentRepository;
@@ -28,6 +31,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,6 +52,28 @@ public class OrderService {
     private final OrderItemRepository orderItemRepository;
     private final PaymentRepository paymentRepository;
     private final UserAddressRepository userAddressRepository;
+
+    public PageResponse<OrderResponse> findMyOrders(User user, Pageable pageable) {
+        Pageable sortedPageable = PageableDefaults.withDefaultSort(
+                pageable,
+                Sort.by(Sort.Direction.DESC, "createdAt")
+        );
+        return PageResponse.from(orderRepository
+                .findByUserId(user.getId(), sortedPageable)
+                .map(order -> toResponse(
+                        order,
+                        orderItemRepository.findByOrderIdOrderByCreatedAtAsc(order.getId())
+                )));
+    }
+
+    public OrderResponse findMyOrderById(User user, UUID id) {
+        Order order = orderRepository.findByIdAndUserId(id, user.getId())
+                .orElseThrow(() -> new OrderNotFoundException(id));
+        return toResponse(
+                order,
+                orderItemRepository.findByOrderIdOrderByCreatedAtAsc(order.getId())
+        );
+    }
 
     @Transactional
     public OrderResponse checkout(User user, CheckoutRequest request) {

@@ -6,6 +6,160 @@ Use this script in Swagger UI:
 http://localhost:8080/swagger-ui/index.html
 ```
 
+## Quick Full Flow
+
+Use this compact flow when you want to verify the happy path from account setup to checkout.
+
+```http
+GET /api/health
+```
+
+Expected: `200 OK`.
+
+```http
+POST /api/auth/register
+```
+
+```json
+{
+  "fullName": "Test Customer",
+  "email": "customer@example.com",
+  "password": "password123"
+}
+```
+
+Expected: `201 Created`. Copy `accessToken`, then authorize Swagger with:
+
+```text
+Bearer <accessToken>
+```
+
+```http
+POST /api/me/addresses
+```
+
+```json
+{
+  "receiverName": "Test Customer",
+  "receiverPhone": "0900000000",
+  "province": "Ho Chi Minh",
+  "district": "District 1",
+  "ward": "Ben Nghe",
+  "detailAddress": "123 Nguyen Hue",
+  "defaultAddress": true
+}
+```
+
+Expected: `201 Created`. Copy `id` as `addressId`.
+
+```http
+POST /api/categories
+```
+
+```json
+{
+  "name": "Phones",
+  "slug": "phones"
+}
+```
+
+Expected: `201 Created`. Copy `id` as `categoryId`.
+
+```http
+POST /api/products
+```
+
+```json
+{
+  "categoryId": "<categoryId>",
+  "name": "iPhone 15",
+  "slug": "iphone-15",
+  "description": "Apple smartphone",
+  "price": 19990000,
+  "imageUrl": "https://example.com/iphone-15.jpg",
+  "status": "ACTIVE"
+}
+```
+
+Expected: `201 Created`. Copy `id` as `productId`.
+
+```http
+POST /api/warehouses
+```
+
+```json
+{
+  "code": "HCM-01",
+  "name": "Ho Chi Minh Warehouse",
+  "address": "District 1, Ho Chi Minh",
+  "status": "ACTIVE"
+}
+```
+
+Expected: `201 Created`. Copy `id` as `warehouseId`.
+
+```http
+POST /api/inventory
+```
+
+```json
+{
+  "productId": "<productId>",
+  "warehouseId": "<warehouseId>",
+  "quantityOnHand": 100,
+  "quantityReserved": 0,
+  "reorderLevel": 10
+}
+```
+
+Expected: `201 Created`. Copy `id` as `inventoryId`.
+
+```http
+POST /api/cart/items
+```
+
+```json
+{
+  "productId": "<productId>",
+  "quantity": 2
+}
+```
+
+Expected: `201 Created`. `totalItems` should be `2`.
+
+```http
+POST /api/orders/checkout
+```
+
+```json
+{
+  "addressId": "<addressId>",
+  "paymentMethod": "COD",
+  "shippingFee": 0
+}
+```
+
+Expected: `200 OK`. Copy returned `id` as `orderId`.
+
+```http
+GET /api/cart
+```
+
+Expected: `200 OK` with empty `items`.
+
+```http
+GET /api/inventory/{inventoryId}
+```
+
+Expected: `quantityOnHand` decreased from `100` to `98`.
+
+```http
+GET /api/orders
+GET /api/orders/{orderId}
+```
+
+Expected: `200 OK`; the order detail includes the checked-out item.
+
 ## 0. Health Check
 
 ```http
@@ -458,6 +612,23 @@ DELETE /api/cart
 Expected: `200 OK`.
 
 ## 8. Order Module
+
+### Get My Orders
+
+```http
+GET /api/orders
+GET /api/orders?page=0&size=10
+```
+
+Expected: `200 OK`.
+
+### Get My Order Detail
+
+```http
+GET /api/orders/{id}
+```
+
+Expected: `200 OK`.
 
 ### Checkout
 

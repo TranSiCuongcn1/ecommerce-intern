@@ -348,6 +348,8 @@ DELETE /api/cart/items/{id}
 DELETE /api/cart
 
 POST /api/orders/checkout
+GET  /api/orders
+GET  /api/orders/{id}
 ```
 
 Admin API:
