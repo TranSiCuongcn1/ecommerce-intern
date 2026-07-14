@@ -10,6 +10,8 @@ import com.trancuong.ecommerce.category.exception.DuplicateCategorySlugException
 import com.trancuong.ecommerce.inventory.exception.DuplicateInventoryException;
 import com.trancuong.ecommerce.inventory.exception.InsufficientInventoryException;
 import com.trancuong.ecommerce.inventory.exception.InventoryNotFoundException;
+import com.trancuong.ecommerce.order.exception.CheckoutAddressNotFoundException;
+import com.trancuong.ecommerce.order.exception.EmptyCartException;
 import com.trancuong.ecommerce.product.exception.DuplicateProductSlugException;
 import com.trancuong.ecommerce.product.exception.ProductNotFoundException;
 import com.trancuong.ecommerce.user.exception.UserAddressNotFoundException;
@@ -107,6 +109,20 @@ public class GlobalExceptionHandler {
             ProductNotAvailableForCartException exception
     ) {
         return response(HttpStatus.CONFLICT, exception.getMessage());
+    }
+
+    @ExceptionHandler(EmptyCartException.class)
+    public ResponseEntity<ApiResponse<Void>> handleEmptyCart(
+            EmptyCartException exception
+    ) {
+        return response(HttpStatus.CONFLICT, exception.getMessage());
+    }
+
+    @ExceptionHandler(CheckoutAddressNotFoundException.class)
+    public ResponseEntity<ApiResponse<Void>> handleCheckoutAddressNotFound(
+            CheckoutAddressNotFoundException exception
+    ) {
+        return response(HttpStatus.BAD_REQUEST, exception.getMessage());
     }
 
     @ExceptionHandler(DuplicateEmailException.class)

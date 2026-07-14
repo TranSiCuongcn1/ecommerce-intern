@@ -423,6 +423,8 @@ Body:
 
 Expected: `201 Created`. Copy returned item `id` as `cartItemId`.
 
+If you want to test checkout, keep at least one item in the cart before continuing.
+
 ### Update Cart Item Quantity
 
 ```http
@@ -455,16 +457,37 @@ DELETE /api/cart
 
 Expected: `200 OK`.
 
-## 8. TODO Endpoints
+## 8. Order Module
+
+### Checkout
+
+```http
+POST /api/orders/checkout
+```
+
+Body:
+
+```json
+{
+  "addressId": "<addressId>",
+  "paymentMethod": "COD",
+  "shippingFee": 0
+}
+```
+
+Expected: `200 OK`. The API creates an order from the current cart, creates order items, creates a pending payment, deducts inventory, and clears the cart.
+
+You can also omit `addressId` to use the default address.
+
+## 9. TODO Endpoints
 
 These endpoints exist but still return placeholder responses.
 
 ```http
-POST /api/orders/checkout
 POST /api/admin/media/upload
 ```
 
-Expected: placeholder `message` response, except `/api/admin/media/upload` requires `ADMIN`.
+Expected: placeholder `message` response and requires `ADMIN`.
 
 ## Notes
 

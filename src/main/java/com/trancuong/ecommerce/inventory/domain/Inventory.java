@@ -97,4 +97,8 @@ public class Inventory {
     public void reserve(Integer quantity) {
         this.quantityReserved += quantity;
     }
+
+    public void deduct(Integer quantity) {
+        this.quantityOnHand -= quantity;
+    }
 }

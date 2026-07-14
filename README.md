@@ -34,7 +34,7 @@ ecommerce-intern/
         │       ├── warehouse/   # Warehouse CRUD
         │       ├── inventory/   # Stock CRUD and inventory allocation
         │       ├── cart/        # Current customer cart
-        │       ├── order/       # Checkout stub endpoint
+        │       ├── order/       # Checkout and order creation
         │       ├── media/       # Admin media upload stub endpoint
         │       ├── security/    # JWT filter and security config
         │       ├── config/      # Application configuration
@@ -363,7 +363,6 @@ Note: register currently creates `CUSTOMER` users only. There is no public API t
 These endpoints exist but currently return placeholder responses:
 
 ```text
-POST /api/orders/checkout
 POST /api/admin/media/upload
 ```
 
