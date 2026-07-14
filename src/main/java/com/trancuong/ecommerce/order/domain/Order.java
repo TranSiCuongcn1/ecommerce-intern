@@ -89,4 +89,8 @@ public class Order {
         this.shippingFee = shippingFee;
         this.paymentMethod = paymentMethod;
     }
+
+    public void updateStatus(String status) {
+        this.status = status;
+    }
 }

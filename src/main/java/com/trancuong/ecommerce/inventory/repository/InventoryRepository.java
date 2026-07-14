@@ -3,6 +3,7 @@ package com.trancuong.ecommerce.inventory.repository;
 import com.trancuong.ecommerce.inventory.domain.Inventory;
 import jakarta.persistence.LockModeType;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -17,6 +18,16 @@ public interface InventoryRepository extends JpaRepository<Inventory, UUID>, Jpa
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select inventory from Inventory inventory where inventory.product.id = :productId")
     List<Inventory> findByProductIdForUpdate(@Param("productId") UUID productId);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("""
+            select inventory from Inventory inventory
+            where inventory.product.id = :productId and inventory.warehouse.id = :warehouseId
+            """)
+    Optional<Inventory> findByProductIdAndWarehouseIdForUpdate(
+            @Param("productId") UUID productId,
+            @Param("warehouseId") UUID warehouseId
+    );
 
     boolean existsByProductIdAndWarehouseId(UUID productId, UUID warehouseId);
 

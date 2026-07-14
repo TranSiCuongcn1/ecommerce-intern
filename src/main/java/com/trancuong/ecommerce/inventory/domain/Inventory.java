@@ -101,4 +101,8 @@ public class Inventory {
     public void deduct(Integer quantity) {
         this.quantityOnHand -= quantity;
     }
+
+    public void addStock(Integer quantity) {
+        this.quantityOnHand += quantity;
+    }
 }

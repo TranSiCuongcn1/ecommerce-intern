@@ -16,8 +16,10 @@ import com.trancuong.ecommerce.order.dto.OrderItemResponse;
 import com.trancuong.ecommerce.order.dto.OrderItemResponse.ProductSummary;
 import com.trancuong.ecommerce.order.dto.OrderItemResponse.WarehouseSummary;
 import com.trancuong.ecommerce.order.dto.OrderResponse;
+import com.trancuong.ecommerce.order.dto.OrderStatusUpdateRequest;
 import com.trancuong.ecommerce.order.exception.CheckoutAddressNotFoundException;
 import com.trancuong.ecommerce.order.exception.EmptyCartException;
+import com.trancuong.ecommerce.order.exception.InvalidOrderStatusException;
 import com.trancuong.ecommerce.order.exception.OrderNotFoundException;
 import com.trancuong.ecommerce.order.repository.OrderItemRepository;
 import com.trancuong.ecommerce.order.repository.OrderRepository;
@@ -42,6 +44,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class OrderService {
 
     private static final String ORDER_STATUS_PENDING = "PENDING";
+    private static final String ORDER_STATUS_COMPLETED = "COMPLETED";
+    private static final String ORDER_STATUS_CANCELLED = "CANCELLED";
     private static final String PAYMENT_STATUS_UNPAID = "UNPAID";
     private static final String PAYMENT_PROVIDER_COD = "COD";
     private static final String PAYMENT_STATUS_PENDING = "PENDING";
@@ -73,6 +77,45 @@ public class OrderService {
                 order,
                 orderItemRepository.findByOrderIdOrderByCreatedAtAsc(order.getId())
         );
+    }
+
+    public PageResponse<OrderResponse> findAllOrders(Pageable pageable) {
+        Pageable sortedPageable = PageableDefaults.withDefaultSort(
+                pageable,
+                Sort.by(Sort.Direction.DESC, "createdAt")
+        );
+        return PageResponse.from(orderRepository
+                .findAllBy(sortedPageable)
+                .map(order -> toResponse(
+                        order,
+                        orderItemRepository.findByOrderIdOrderByCreatedAtAsc(order.getId())
+                )));
+    }
+
+    public OrderResponse findOrderById(UUID id) {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new OrderNotFoundException(id));
+        return toResponse(
+                order,
+                orderItemRepository.findByOrderIdOrderByCreatedAtAsc(order.getId())
+        );
+    }
+
+    @Transactional
+    public OrderResponse updateStatus(UUID id, OrderStatusUpdateRequest request) {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new OrderNotFoundException(id));
+        String nextStatus = request.status().trim().toUpperCase();
+        validateStatusChange(order, nextStatus);
+
+        List<OrderItem> orderItems = orderItemRepository.findByOrderIdOrderByCreatedAtAsc(order.getId());
+        if (ORDER_STATUS_CANCELLED.equals(nextStatus)) {
+            restoreInventory(orderItems);
+        }
+
+        order.updateStatus(nextStatus);
+        orderRepository.flush();
+        return toResponse(order, orderItems);
     }
 
     @Transactional
@@ -151,6 +194,35 @@ public class OrderService {
                 cartItem.getQuantity(),
                 subtotal
         );
+    }
+
+    private void validateStatusChange(Order order, String nextStatus) {
+        if (order.getStatus().equals(nextStatus)) {
+            return;
+        }
+        if (ORDER_STATUS_COMPLETED.equals(order.getStatus())) {
+            throw new InvalidOrderStatusException("Completed orders cannot change status");
+        }
+        if (ORDER_STATUS_CANCELLED.equals(order.getStatus())) {
+            throw new InvalidOrderStatusException("Cancelled orders cannot change status");
+        }
+    }
+
+    private void restoreInventory(List<OrderItem> orderItems) {
+        for (OrderItem orderItem : orderItems) {
+            if (orderItem.getProduct() == null || orderItem.getWarehouse() == null) {
+                continue;
+            }
+            Inventory inventory = inventoryRepository.findByProductIdAndWarehouseIdForUpdate(
+                            orderItem.getProduct().getId(),
+                            orderItem.getWarehouse().getId()
+                    )
+                    .orElseThrow(() -> new InsufficientInventoryException(
+                            orderItem.getProduct().getId(),
+                            orderItem.getQuantity()
+                    ));
+            inventory.addStock(orderItem.getQuantity());
+        }
     }
 
     private UserAddress getCheckoutAddress(User user, UUID addressId) {

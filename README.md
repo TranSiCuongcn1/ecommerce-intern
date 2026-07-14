@@ -355,6 +355,9 @@ GET  /api/orders/{id}
 Admin API:
 
 ```text
+GET   /api/admin/orders
+GET   /api/admin/orders/{id}
+PATCH /api/admin/orders/{id}/status
 POST /api/admin/media/upload
 ```
 

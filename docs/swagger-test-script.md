@@ -650,7 +650,56 @@ Expected: `200 OK`. The API creates an order from the current cart, creates orde
 
 You can also omit `addressId` to use the default address.
 
-## 9. TODO Endpoints
+## 9. Admin Order Module
+
+These APIs require an `ADMIN` token.
+
+### Get All Orders
+
+```http
+GET /api/admin/orders
+GET /api/admin/orders?page=0&size=10
+```
+
+Expected: `200 OK`.
+
+### Get Order Detail
+
+```http
+GET /api/admin/orders/{id}
+```
+
+Expected: `200 OK`.
+
+### Update Order Status
+
+```http
+PATCH /api/admin/orders/{id}/status
+```
+
+Body:
+
+```json
+{
+  "status": "CONFIRMED"
+}
+```
+
+Expected: `200 OK`.
+
+Allowed statuses:
+
+```text
+PENDING
+CONFIRMED
+SHIPPING
+COMPLETED
+CANCELLED
+```
+
+If status is changed to `CANCELLED`, the API restores inventory for the order items.
+
+## 10. TODO Endpoints
 
 These endpoints exist but still return placeholder responses.
 
