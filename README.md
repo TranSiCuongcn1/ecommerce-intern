@@ -306,29 +306,16 @@ POST /api/auth/refresh
 POST /api/auth/logout
 
 GET    /api/categories
-POST   /api/categories
 GET    /api/categories/{id}
-PUT    /api/categories/{id}
-DELETE /api/categories/{id}
 
 GET    /api/products
-POST   /api/products
 GET    /api/products/{id}
-PUT    /api/products/{id}
-DELETE /api/products/{id}
 
 GET    /api/warehouses
-POST   /api/warehouses
 GET    /api/warehouses/{id}
-PUT    /api/warehouses/{id}
-DELETE /api/warehouses/{id}
 
 GET    /api/inventory
-POST   /api/inventory
 GET    /api/inventory/{id}
-PUT    /api/inventory/{id}
-DELETE /api/inventory/{id}
-POST   /api/inventory/allocate
 ```
 
 Authenticated APIs:
@@ -355,6 +342,23 @@ GET  /api/orders/{id}
 Admin API:
 
 ```text
+POST  /api/categories
+PUT   /api/categories/{id}
+DELETE /api/categories/{id}
+
+POST  /api/products
+PUT   /api/products/{id}
+DELETE /api/products/{id}
+
+POST  /api/warehouses
+PUT   /api/warehouses/{id}
+DELETE /api/warehouses/{id}
+
+POST  /api/inventory
+PUT   /api/inventory/{id}
+DELETE /api/inventory/{id}
+POST  /api/inventory/allocate
+
 GET   /api/admin/orders
 GET   /api/admin/orders/{id}
 PATCH /api/admin/orders/{id}/status

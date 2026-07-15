@@ -9,6 +9,7 @@ http://localhost:8080/swagger-ui/index.html
 ## Quick Full Flow
 
 Use this compact flow when you want to verify the happy path from account setup to checkout.
+Catalog, warehouse, and inventory mutation APIs require an `ADMIN` token. Use a customer token for `/api/me`, cart, checkout, and customer order APIs.
 
 ```http
 GET /api/health
@@ -713,4 +714,4 @@ Expected: placeholder `message` response and requires `ADMIN`.
 
 - Register creates `CUSTOMER` users only.
 - There is no public API to create an `ADMIN` user yet.
-- Product/category/warehouse/inventory mutation endpoints are currently public in `SecurityConfig`; production should usually restrict `POST`, `PUT`, and `DELETE` to `ADMIN`.
+- Product/category/warehouse/inventory `GET` endpoints are public. Mutation endpoints require `ADMIN`.
