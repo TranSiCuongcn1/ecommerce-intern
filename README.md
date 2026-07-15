@@ -91,6 +91,15 @@ MinIO user: minioadmin
 MinIO pass: minioadmin
 ```
 
+Local admin bootstrap:
+
+```text
+Admin email:    admin@example.com
+Admin password: admin123456
+```
+
+Override with `APP_ADMIN_EMAIL`, `APP_ADMIN_PASSWORD`, `APP_ADMIN_FULL_NAME`, or disable with `APP_ADMIN_BOOTSTRAP_ENABLED=false`.
+
 Main config file:
 
 ```text
@@ -365,15 +374,7 @@ PATCH /api/admin/orders/{id}/status
 POST /api/admin/media/upload
 ```
 
-Note: register currently creates `CUSTOMER` users only. There is no public API to create an `ADMIN` user yet.
-
-## Current TODO Endpoints
-
-These endpoints exist but currently return placeholder responses:
-
-```text
-POST /api/admin/media/upload
-```
+Note: register creates `CUSTOMER` users only. A local admin account is bootstrapped from `app.admin.bootstrap` settings when enabled.
 
 ## Useful Commands
 

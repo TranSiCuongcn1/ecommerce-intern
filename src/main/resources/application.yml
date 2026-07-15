@@ -36,6 +36,13 @@ app:
     access-key: "${MINIO_ACCESS_KEY:minioadmin}"
     secret-key: "${MINIO_SECRET_KEY:minioadmin}"
     bucket: "${MINIO_BUCKET_NAME:ecommerce-products}"
+    public-url: "${MINIO_PUBLIC_URL:http://127.0.0.1:9000}"
+  admin:
+    bootstrap:
+      enabled: "${APP_ADMIN_BOOTSTRAP_ENABLED:true}"
+      full-name: "${APP_ADMIN_FULL_NAME:Local Admin}"
+      email: "${APP_ADMIN_EMAIL:admin@example.com}"
+      password: "${APP_ADMIN_PASSWORD:admin123456}"
 
 springdoc:
   swagger-ui:

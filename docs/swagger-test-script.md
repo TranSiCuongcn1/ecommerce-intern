@@ -700,18 +700,22 @@ CANCELLED
 
 If status is changed to `CANCELLED`, the API restores inventory for the order items.
 
-## 10. TODO Endpoints
+## 10. Admin Media Module
 
-These endpoints exist but still return placeholder responses.
+These APIs require an `ADMIN` token.
+
+### Upload Media
 
 ```http
 POST /api/admin/media/upload
 ```
 
-Expected: placeholder `message` response and requires `ADMIN`.
+Use `multipart/form-data` with a `file` part.
+
+Expected: `200 OK`. The response includes `objectName`, `url`, `contentType`, and `size`.
 
 ## Notes
 
 - Register creates `CUSTOMER` users only.
-- There is no public API to create an `ADMIN` user yet.
+- Local admin bootstrap defaults to `admin@example.com` / `admin123456`. Override with `APP_ADMIN_EMAIL` and `APP_ADMIN_PASSWORD`.
 - Product/category/warehouse/inventory `GET` endpoints are public. Mutation endpoints require `ADMIN`.

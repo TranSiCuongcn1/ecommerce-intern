@@ -10,6 +10,7 @@ import com.trancuong.ecommerce.category.exception.DuplicateCategorySlugException
 import com.trancuong.ecommerce.inventory.exception.DuplicateInventoryException;
 import com.trancuong.ecommerce.inventory.exception.InsufficientInventoryException;
 import com.trancuong.ecommerce.inventory.exception.InventoryNotFoundException;
+import com.trancuong.ecommerce.media.exception.MediaUploadException;
 import com.trancuong.ecommerce.order.exception.CheckoutAddressNotFoundException;
 import com.trancuong.ecommerce.order.exception.EmptyCartException;
 import com.trancuong.ecommerce.order.exception.InvalidOrderStatusException;
@@ -139,6 +140,13 @@ public class GlobalExceptionHandler {
             InvalidOrderStatusException exception
     ) {
         return response(HttpStatus.CONFLICT, exception.getMessage());
+    }
+
+    @ExceptionHandler(MediaUploadException.class)
+    public ResponseEntity<ApiResponse<Void>> handleMediaUpload(
+            MediaUploadException exception
+    ) {
+        return response(HttpStatus.BAD_REQUEST, exception.getMessage());
     }
 
     @ExceptionHandler(DuplicateEmailException.class)
