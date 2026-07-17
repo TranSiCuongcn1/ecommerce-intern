@@ -1,6 +1,6 @@
 # Ecommerce API
 
-Spring Boot 3 ecommerce MVP backend, organized as a modular monolith. The project includes authentication, user profile addresses, catalog management, warehouse management, and inventory allocation.
+Spring Boot 3 ecommerce MVP backend organized as a modular monolith. The project includes authentication, user profile addresses, catalog management, warehouse and inventory management, cart, checkout, order management, admin media upload, JWT security, Flyway migrations, and service-level unit tests.
 
 ## Tech Stack
 
@@ -19,31 +19,28 @@ Spring Boot 3 ecommerce MVP backend, organized as a modular monolith. The projec
 
 ```text
 ecommerce-intern/
-├── docker-compose.yml
-├── pom.xml
-├── README.md
-└── src/
-    └── main/
-        ├── java/
-        │   └── com/trancuong/ecommerce/
-        │       ├── EcommerceApiApplication.java
-        │       ├── auth/        # Register, login, refresh token, logout
-        │       ├── user/        # Current user profile and addresses
-        │       ├── category/    # Category CRUD
-        │       ├── product/     # Product CRUD
-        │       ├── warehouse/   # Warehouse CRUD
-        │       ├── inventory/   # Stock CRUD and inventory allocation
-        │       ├── cart/        # Current customer cart
-        │       ├── order/       # Checkout and order creation
-        │       ├── media/       # Admin media upload stub endpoint
-        │       ├── security/    # JWT filter and security config
-        │       ├── config/      # Application configuration
-        │       └── common/      # Shared API error handling
-        └── resources/
-            ├── application.yml
-            └── db/migration/
-                ├── V1__init_ecommerce_schema.sql
-                └── V2__user_addresses_single_default.sql
+|-- docker-compose.yml
+|-- pom.xml
+|-- README.md
+`-- src/
+    |-- main/
+    |   |-- java/com/trancuong/ecommerce/
+    |   |   |-- auth/        # Register, login, refresh token, logout
+    |   |   |-- user/        # Current user profile and addresses
+    |   |   |-- category/    # Category CRUD
+    |   |   |-- product/     # Product CRUD
+    |   |   |-- warehouse/   # Warehouse CRUD
+    |   |   |-- inventory/   # Stock CRUD and inventory allocation
+    |   |   |-- cart/        # Current customer cart
+    |   |   |-- order/       # Checkout, customer orders, admin order status
+    |   |   |-- media/       # Admin media upload to MinIO
+    |   |   |-- security/    # JWT filter and security config
+    |   |   |-- config/      # Application configuration
+    |   |   `-- common/      # Shared API response and error handling
+    |   `-- resources/
+    |       |-- application.yml
+    |       `-- db/migration/
+    `-- test/                # Unit tests for core service logic
 ```
 
 ## Local Setup
@@ -86,7 +83,8 @@ PostgreSQL: localhost:5433/ecommerce_db
 DB user:    postgres
 DB pass:    123456
 Redis:      localhost:6379
-MinIO:      http://localhost:9001
+MinIO API:  http://localhost:9000
+MinIO UI:   http://localhost:9001
 MinIO user: minioadmin
 MinIO pass: minioadmin
 ```
@@ -119,19 +117,17 @@ Current migrations:
 ```text
 V1__init_ecommerce_schema.sql
 V2__user_addresses_single_default.sql
+V3__add_current_token_ids_to_users.sql
+V4__add_current_access_token_id_to_users.sql
 ```
 
-Hibernate is set to validate only:
+Hibernate validates schema on startup:
 
 ```yaml
 spring.jpa.hibernate.ddl-auto: validate
 ```
 
-So Flyway creates/updates tables, and Hibernate validates entity/schema compatibility on startup.
-
 ## Swagger Test Script
-
-Use this flow directly in Swagger UI.
 
 For the full endpoint-by-endpoint Swagger script, see:
 
@@ -139,170 +135,20 @@ For the full endpoint-by-endpoint Swagger script, see:
 docs/swagger-test-script.md
 ```
 
-### 1. Register user
+When Swagger asks for authorization, paste the raw `accessToken` only. Do not prefix it with `Bearer`; Swagger adds that automatically.
 
-Endpoint:
+Quick happy path:
 
-```text
-POST /api/auth/register
-```
-
-Body:
-
-```json
-{
-  "fullName": "Test User",
-  "email": "testuser@example.com",
-  "password": "password123"
-}
-```
-
-Expected: `201 Created`. Copy `accessToken` from the response.
-
-### 2. Authorize Swagger
-
-Click `Authorize` in Swagger UI and input:
-
-```text
-<accessToken>
-```
-
-Then click `Authorize`.
-
-### 3. Test current profile
-
-Endpoint:
-
-```text
-GET /api/me
-```
-
-Expected: current authenticated user profile.
-
-### 4. Create user address
-
-Endpoint:
-
-```text
-POST /api/me/addresses
-```
-
-Body:
-
-```json
-{
-  "receiverName": "Test User",
-  "receiverPhone": "0900000000",
-  "province": "Ho Chi Minh",
-  "district": "District 1",
-  "ward": "Ben Nghe",
-  "detailAddress": "123 Nguyen Hue",
-  "defaultAddress": true
-}
-```
-
-### 5. Create category
-
-Endpoint:
-
-```text
-POST /api/categories
-```
-
-Body:
-
-```json
-{
-  "name": "Phones",
-  "slug": "phones"
-}
-```
-
-Copy returned `id` as `categoryId`.
-
-### 6. Create product
-
-Endpoint:
-
-```text
-POST /api/products
-```
-
-Body:
-
-```json
-{
-  "categoryId": "<categoryId>",
-  "name": "iPhone 15",
-  "slug": "iphone-15",
-  "description": "Apple smartphone",
-  "price": 19990000,
-  "imageUrl": "https://example.com/iphone-15.jpg",
-  "status": "ACTIVE"
-}
-```
-
-Copy returned `id` as `productId`.
-
-### 7. Create warehouse
-
-Endpoint:
-
-```text
-POST /api/warehouses
-```
-
-Body:
-
-```json
-{
-  "code": "HCM-01",
-  "name": "Ho Chi Minh Warehouse",
-  "address": "District 1, Ho Chi Minh",
-  "status": "ACTIVE"
-}
-```
-
-Copy returned `id` as `warehouseId`.
-
-### 8. Create inventory
-
-Endpoint:
-
-```text
-POST /api/inventory
-```
-
-Body:
-
-```json
-{
-  "productId": "<productId>",
-  "warehouseId": "<warehouseId>",
-  "quantityOnHand": 100,
-  "quantityReserved": 0,
-  "reorderLevel": 10
-}
-```
-
-### 9. Allocate inventory
-
-Endpoint:
-
-```text
-POST /api/inventory/allocate
-```
-
-Body:
-
-```json
-{
-  "productId": "<productId>",
-  "quantity": 2
-}
-```
-
-Expected: `quantityReserved` increases and `availableQuantity` decreases.
+1. Login admin with `admin@example.com` / `admin123456`.
+2. Authorize Swagger with the admin `accessToken`.
+3. Create category, product, warehouse, and inventory.
+4. Register or login a customer.
+5. Authorize Swagger with the customer `accessToken`.
+6. Create customer address.
+7. Add product to cart.
+8. Checkout.
+9. Verify cart is empty, inventory decreased, and order can be viewed.
+10. Authorize as admin again to update order status or upload media.
 
 ## API Overview
 
@@ -314,20 +160,20 @@ POST /api/auth/login
 POST /api/auth/refresh
 POST /api/auth/logout
 
-GET    /api/categories
-GET    /api/categories/{id}
+GET  /api/categories
+GET  /api/categories/{id}
 
-GET    /api/products
-GET    /api/products/{id}
+GET  /api/products
+GET  /api/products/{id}
 
-GET    /api/warehouses
-GET    /api/warehouses/{id}
+GET  /api/warehouses
+GET  /api/warehouses/{id}
 
-GET    /api/inventory
-GET    /api/inventory/{id}
+GET  /api/inventory
+GET  /api/inventory/{id}
 ```
 
-Authenticated APIs:
+Authenticated customer APIs:
 
 ```text
 GET    /api/me
@@ -343,38 +189,38 @@ PUT    /api/cart/items/{id}
 DELETE /api/cart/items/{id}
 DELETE /api/cart
 
-POST /api/orders/checkout
-GET  /api/orders
-GET  /api/orders/{id}
+POST   /api/orders/checkout
+GET    /api/orders
+GET    /api/orders/{id}
 ```
 
-Admin API:
+Admin APIs:
 
 ```text
-POST  /api/categories
-PUT   /api/categories/{id}
+POST   /api/categories
+PUT    /api/categories/{id}
 DELETE /api/categories/{id}
 
-POST  /api/products
-PUT   /api/products/{id}
+POST   /api/products
+PUT    /api/products/{id}
 DELETE /api/products/{id}
 
-POST  /api/warehouses
-PUT   /api/warehouses/{id}
+POST   /api/warehouses
+PUT    /api/warehouses/{id}
 DELETE /api/warehouses/{id}
 
-POST  /api/inventory
-PUT   /api/inventory/{id}
+POST   /api/inventory
+PUT    /api/inventory/{id}
 DELETE /api/inventory/{id}
-POST  /api/inventory/allocate
+POST   /api/inventory/allocate
 
-GET   /api/admin/orders
-GET   /api/admin/orders/{id}
-PATCH /api/admin/orders/{id}/status
-POST /api/admin/media/upload
+GET    /api/admin/orders
+GET    /api/admin/orders/{id}
+PATCH  /api/admin/orders/{id}/status
+POST   /api/admin/media/upload
 ```
 
-Note: register creates `CUSTOMER` users only. A local admin account is bootstrapped from `app.admin.bootstrap` settings when enabled.
+Register creates `CUSTOMER` users only. The local admin account is bootstrapped from `app.admin.bootstrap` when enabled.
 
 ## Useful Commands
 
@@ -383,6 +229,8 @@ Run tests:
 ```bash
 mvn test
 ```
+
+Current unit test coverage includes auth, user profile, category, product, warehouse, inventory, cart, checkout, and admin order status.
 
 Build jar:
 
