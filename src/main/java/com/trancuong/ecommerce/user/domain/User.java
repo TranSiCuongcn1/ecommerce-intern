@@ -78,4 +78,16 @@ public class User {
     public void clearCurrentRefreshTokenId() {
         this.currentRefreshTokenId = null;
     }
+
+    public void updateFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
+    public void updatePasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
+    }
+
+    public void updateRole(Role role) {
+        this.role = role;
+    }
 }

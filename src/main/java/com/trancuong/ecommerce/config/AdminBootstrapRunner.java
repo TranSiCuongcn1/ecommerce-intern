@@ -25,10 +25,25 @@ public class AdminBootstrapRunner implements CommandLineRunner {
         }
 
         String email = properties.email().trim().toLowerCase();
-        if (userRepository.existsByEmailIgnoreCase(email)) {
+        userRepository.findByEmailIgnoreCase(email).ifPresentOrElse(
+                this::promoteExistingUser,
+                () -> createAdmin(email)
+        );
+    }
+
+    private void promoteExistingUser(User user) {
+        if (user.getRole() == Role.ADMIN) {
             return;
         }
 
+        user.updateFullName(properties.fullName().trim());
+        user.updatePasswordHash(passwordEncoder.encode(properties.password()));
+        user.updateRole(Role.ADMIN);
+        user.clearCurrentAccessTokenId();
+        user.clearCurrentRefreshTokenId();
+    }
+
+    private void createAdmin(String email) {
         userRepository.save(new User(
                 properties.fullName().trim(),
                 email,

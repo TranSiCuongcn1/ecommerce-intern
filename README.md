@@ -164,7 +164,7 @@ Expected: `201 Created`. Copy `accessToken` from the response.
 Click `Authorize` in Swagger UI and input:
 
 ```text
-Bearer <accessToken>
+<accessToken>
 ```
 
 Then click `Authorize`.

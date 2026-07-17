@@ -29,10 +29,10 @@ POST /api/auth/register
 }
 ```
 
-Expected: `201 Created`. Copy `accessToken`, then authorize Swagger with:
+Expected: `201 Created`. Copy `accessToken`, then click `Authorize` and paste only the raw token:
 
 ```text
-Bearer <accessToken>
+<accessToken>
 ```
 
 ```http
@@ -211,7 +211,7 @@ Expected: `200 OK`.
 Click `Authorize` and input:
 
 ```text
-Bearer <accessToken>
+<accessToken>
 ```
 
 ### Refresh Token
