@@ -187,6 +187,13 @@ public class GlobalExceptionHandler {
         return response(HttpStatus.BAD_REQUEST, message);
     }
 
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ApiResponse<Void>> handleGeneralException(
+            Exception exception
+    ) {
+        return response(HttpStatus.INTERNAL_SERVER_ERROR, exception.getMessage());
+    }
+
     private ResponseEntity<ApiResponse<Void>> response(
             HttpStatus status,
             String message

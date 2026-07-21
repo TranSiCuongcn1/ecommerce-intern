@@ -649,6 +649,15 @@ Body:
 
 Expected: `200 OK`. The API creates an order from the current cart, creates order items, creates a pending payment, deducts inventory, and clears the cart.
 
+Allowed payment methods:
+
+```text
+COD
+BANK_TRANSFER
+MOMO
+VNPAY
+```
+
 You can also omit `addressId` to use the default address.
 
 ## 9. Admin Order Module
@@ -714,8 +723,140 @@ Use `multipart/form-data` with a `file` part.
 
 Expected: `200 OK`. The response includes `objectName`, `url`, `contentType`, and `size`.
 
+## 11. MoMo Payment Module (Sandbox - Backend Only)
+
+This flow allows you to test the MoMo Payment Gateway completely from Swagger UI and your browser without a frontend.
+
+### Step 1: Customer Login
+Use the `auth-controller` in Swagger:
+```http
+POST /api/auth/login
+```
+Body:
+```json
+{
+  "email": "customer@example.com",
+  "password": "password123"
+}
+```
+Expected: `200 OK`. Copy the `accessToken`, click **Authorize** at the top of Swagger, paste the token, and click **Authorize**.
+
+### Step 2: Add Product to Cart
+Make sure you have a product in your catalog with sufficient stock.
+```http
+POST /api/cart/items
+```
+Body:
+```json
+{
+  "productId": "<productId>",
+  "quantity": 1
+}
+```
+Expected: `201 Created`.
+
+### Step 3: Checkout with MoMo Payment Method
+Create an order. The `paymentMethod` MUST be `MOMO`.
+```http
+POST /api/orders/checkout
+```
+Body:
+```json
+{
+  "addressId": "<addressId>",
+  "paymentMethod": "MOMO",
+  "shippingFee": 15000
+}
+```
+Expected: `200 OK`.
+Copy the `id` of the created order from the response body. This is your `<orderId>`. Note that `paymentStatus` is initially `UNPAID` and `status` is `PENDING`.
+
+### Step 4: Initiate MoMo Payment
+Generate the MoMo transaction payment URL.
+```http
+POST /api/payments/momo/initiate
+```
+Body:
+```json
+{
+  "orderId": "<orderId>",
+  "redirectUrl": "http://localhost:8080/api/payments/momo/redirect"
+}
+```
+Expected: `200 OK`. Response body contains:
+* `payUrl`: The URL to redirect the user to the MoMo Sandbox page.
+
+Copy the value of `payUrl`.
+
+### Step 5: Simulate Payment on Browser
+1. Paste the copied `payUrl` into a new tab in your browser.
+2. You will be redirected to the MoMo Sandbox payment page.
+3. Click the sandbox success button if it is available.
+4. MoMo will automatically:
+   - Call the backend webhook (`POST /api/payments/momo-ipn`) in the background to update the order status to `PAID`.
+   - Redirect your browser tab to the backend redirect endpoint: `http://localhost:8080/api/payments/momo/redirect`.
+5. Your browser will show a plain HTML page with the MoMo result.
+
+Important local testing note: if your backend is running only on `localhost`, MoMo cannot reach the IPN endpoint from the internet. Use ngrok and set `MOMO_IPN_URL` to the public URL if you want MoMo to update the order automatically. The redirect page is informational only; it does not mark the order as paid.
+
+### Step 6: Verify Order Status
+Go back to Swagger and query your order:
+```http
+GET /api/orders/{orderId}
+```
+Expected: `200 OK`. 
+Confirm that `paymentStatus` has changed to **`PAID`**.
+
+## 12. VNPay Payment Module (Sandbox - Backend Only)
+
+### Step 1: Checkout with VNPay Payment Method
+
+Create an order with `paymentMethod` set to `VNPAY`.
+
+```http
+POST /api/orders/checkout
+```
+
+```json
+{
+  "addressId": "<addressId>",
+  "paymentMethod": "VNPAY",
+  "shippingFee": 15000
+}
+```
+
+Expected: `200 OK`. Copy the returned `id` as `<orderId>`.
+
+### Step 2: Initiate VNPay Payment
+
+```http
+POST /api/payments/vnpay/initiate
+```
+
+```json
+{
+  "orderId": "<orderId>",
+  "returnUrl": "http://localhost:8080/api/payments/vnpay/redirect"
+}
+```
+
+Expected: `200 OK`. Copy `paymentUrl` and open it in your browser.
+
+### Step 3: Pay in VNPay Sandbox
+
+Use the VNPay sandbox payment page and complete the payment. After VNPay redirects back, the backend verifies the signed return parameters and updates the order status. For a real IPN callback, expose `/api/payments/vnpay-ipn` with ngrok and configure the public URL in the VNPay sandbox merchant settings.
+
+### Step 4: Verify Order Status
+
+```http
+GET /api/orders/{orderId}
+```
+
+Expected after successful payment: `paymentStatus` is `PAID`.
+
 ## Notes
 
 - Register creates `CUSTOMER` users only.
 - Local admin bootstrap defaults to `admin@example.com` / `admin123456`. Override with `APP_ADMIN_EMAIL` and `APP_ADMIN_PASSWORD`.
 - Product/category/warehouse/inventory `GET` endpoints are public. Mutation endpoints require `ADMIN`.
+

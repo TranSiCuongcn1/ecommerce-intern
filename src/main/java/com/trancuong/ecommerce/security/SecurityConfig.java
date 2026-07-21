@@ -30,7 +30,12 @@ public class SecurityConfig {
                                 "/api/auth/**",
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
-                                "/swagger-ui.html"
+                                "/swagger-ui.html",
+                                "/api/payments/momo-ipn",
+                                "/api/payments/momo/redirect",
+                                "/api/payments/vnpay-ipn",
+                                "/api/payments/vnpay/redirect",
+                                "/error"
                         ).permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll()

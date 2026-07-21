@@ -8,7 +8,7 @@ import java.util.UUID;
 
 public record CheckoutRequest(
         UUID addressId,
-        @Pattern(regexp = "(?i)COD|BANK_TRANSFER", message = "must be COD or BANK_TRANSFER")
+        @Pattern(regexp = "(?i)COD|BANK_TRANSFER|MOMO|VNPAY", message = "must be COD, BANK_TRANSFER, MOMO or VNPAY")
         String paymentMethod,
         @DecimalMin(value = "0.00")
         @Digits(integer = 13, fraction = 2)

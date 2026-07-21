@@ -67,4 +67,24 @@ public class Payment {
         this.provider = provider;
         this.status = status;
     }
+
+    public void markPaid(String providerTransactionId, LocalDateTime paidAt) {
+        this.status = "PAID";
+        this.providerTransactionId = providerTransactionId;
+        this.paidAt = paidAt;
+    }
+
+    public void markFailed(String failureReason) {
+        this.status = "FAILED";
+        this.failureReason = failureReason;
+    }
+
+    public void prepareForProvider(String provider, BigDecimal amount) {
+        this.provider = provider;
+        this.amount = amount;
+        this.status = "PENDING";
+        this.providerTransactionId = null;
+        this.paidAt = null;
+        this.failureReason = null;
+    }
 }

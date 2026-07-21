@@ -93,4 +93,12 @@ public class Order {
     public void updateStatus(String status) {
         this.status = status;
     }
+
+    public void updatePaymentStatus(String paymentStatus) {
+        this.paymentStatus = paymentStatus;
+    }
+
+    public void updatePaymentMethod(String paymentMethod) {
+        this.paymentMethod = paymentMethod;
+    }
 }

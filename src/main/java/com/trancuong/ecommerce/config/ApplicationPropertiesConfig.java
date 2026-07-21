@@ -6,7 +6,9 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @EnableConfigurationProperties({
         AdminBootstrapProperties.class,
-        MinioProperties.class
+        MinioProperties.class,
+        MomoProperties.class,
+        VnPayProperties.class
 })
 public class ApplicationPropertiesConfig {
 }
