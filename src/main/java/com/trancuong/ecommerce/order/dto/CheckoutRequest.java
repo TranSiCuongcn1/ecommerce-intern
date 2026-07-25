@@ -12,6 +12,7 @@ public record CheckoutRequest(
         String paymentMethod,
         @DecimalMin(value = "0.00")
         @Digits(integer = 13, fraction = 2)
-        BigDecimal shippingFee
+        BigDecimal shippingFee,
+        String voucherCode
 ) {
 }

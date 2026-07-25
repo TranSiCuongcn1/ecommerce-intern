@@ -60,6 +60,12 @@ class OrderServiceTest {
     @Mock
     private UserAddressRepository userAddressRepository;
 
+    @Mock
+    private com.trancuong.ecommerce.voucher.service.VoucherService voucherService;
+
+    @Mock
+    private com.trancuong.ecommerce.common.mail.EmailService emailService;
+
     @InjectMocks
     private OrderService orderService;
 
@@ -88,7 +94,7 @@ class OrderServiceTest {
 
         OrderResponse response = orderService.checkout(
                 user,
-                new CheckoutRequest(address.getId(), "COD", BigDecimal.ZERO)
+                new CheckoutRequest(address.getId(), "COD", BigDecimal.ZERO, null)
         );
 
         assertThat(response.status()).isEqualTo("PENDING");

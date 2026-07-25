@@ -51,6 +51,13 @@ public class Order {
     @Column(name = "receiver_phone", nullable = false, length = 20)
     private String receiverPhone;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "voucher_id")
+    private com.trancuong.ecommerce.voucher.domain.Voucher voucher;
+
+    @Column(name = "discount_amount", nullable = false, precision = 15, scale = 2)
+    private BigDecimal discountAmount = BigDecimal.ZERO;
+
     @Column(name = "shipping_fee", nullable = false, precision = 15, scale = 2)
     private BigDecimal shippingFee;
 
@@ -88,6 +95,11 @@ public class Order {
         this.receiverPhone = receiverPhone;
         this.shippingFee = shippingFee;
         this.paymentMethod = paymentMethod;
+    }
+
+    public void applyVoucher(com.trancuong.ecommerce.voucher.domain.Voucher voucher, BigDecimal discountAmount) {
+        this.voucher = voucher;
+        this.discountAmount = discountAmount != null ? discountAmount : BigDecimal.ZERO;
     }
 
     public void updateStatus(String status) {

@@ -11,6 +11,8 @@ public record OrderResponse(
         String paymentStatus,
         String paymentMethod,
         BigDecimal shippingFee,
+        BigDecimal discountAmount,
+        String voucherCode,
         BigDecimal totalAmount,
         String receiverName,
         String receiverPhone,

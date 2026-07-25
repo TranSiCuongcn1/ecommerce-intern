@@ -61,8 +61,20 @@ public class OrderController {
                 "Checkout successfully",
                 orderService.checkout(
                         user,
-                        request == null ? new CheckoutRequest(null, null, null) : request
+                        request == null ? new CheckoutRequest(null, null, null, null) : request
                 )
+        );
+    }
+
+    @PostMapping("/{id}/cancel")
+    public ApiResponse<OrderResponse> cancelMyOrder(
+            @AuthenticationPrincipal User user,
+            @PathVariable UUID id
+    ) {
+        return ApiResponse.success(
+                HttpStatus.OK.value(),
+                "Order cancelled successfully",
+                orderService.cancelMyOrder(user, id)
         );
     }
 }

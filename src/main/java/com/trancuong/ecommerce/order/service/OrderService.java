@@ -56,6 +56,8 @@ public class OrderService {
     private final OrderItemRepository orderItemRepository;
     private final PaymentRepository paymentRepository;
     private final UserAddressRepository userAddressRepository;
+    private final com.trancuong.ecommerce.voucher.service.VoucherService voucherService;
+    private final com.trancuong.ecommerce.common.mail.EmailService emailService;
 
     public PageResponse<OrderResponse> findMyOrders(User user, Pageable pageable) {
         Pageable sortedPageable = PageableDefaults.withDefaultSort(
@@ -119,6 +121,23 @@ public class OrderService {
     }
 
     @Transactional
+    public OrderResponse cancelMyOrder(User user, UUID id) {
+        Order order = orderRepository.findByIdAndUserId(id, user.getId())
+                .orElseThrow(() -> new OrderNotFoundException(id));
+
+        if (!ORDER_STATUS_PENDING.equalsIgnoreCase(order.getStatus())) {
+            throw new InvalidOrderStatusException("Only PENDING orders can be cancelled by customer");
+        }
+
+        List<OrderItem> orderItems = orderItemRepository.findByOrderIdOrderByCreatedAtAsc(order.getId());
+        restoreInventory(orderItems);
+
+        order.updateStatus(ORDER_STATUS_CANCELLED);
+        orderRepository.flush();
+        return toResponse(order, orderItems);
+    }
+
+    @Transactional
     public OrderResponse checkout(User user, CheckoutRequest request) {
         List<CartItem> cartItems = cartItemRepository.findByUserIdOrderByCreatedAtDesc(user.getId());
         if (cartItems.isEmpty()) {
@@ -132,9 +151,20 @@ public class OrderService {
         BigDecimal itemsTotal = cartItems.stream()
                 .map(item -> item.getProduct().getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
-        BigDecimal totalAmount = itemsTotal.add(shippingFee);
 
-        Order order = orderRepository.save(new Order(
+        BigDecimal discountAmount = BigDecimal.ZERO;
+        com.trancuong.ecommerce.voucher.domain.Voucher appliedVoucher = null;
+
+        if (request.voucherCode() != null && !request.voucherCode().isBlank()) {
+            com.trancuong.ecommerce.voucher.service.VoucherService.VoucherDiscountResult voucherResult =
+                    voucherService.validateAndCalculateVoucher(user.getId(), request.voucherCode(), itemsTotal);
+            appliedVoucher = voucherResult.voucher();
+            discountAmount = voucherResult.discountAmount();
+        }
+
+        BigDecimal totalAmount = itemsTotal.add(shippingFee).subtract(discountAmount).max(BigDecimal.ZERO);
+
+        Order order = new Order(
                 user,
                 totalAmount,
                 ORDER_STATUS_PENDING,
@@ -144,14 +174,24 @@ public class OrderService {
                 address.getReceiverPhone(),
                 shippingFee,
                 paymentMethod
-        ));
+        );
+
+        if (appliedVoucher != null) {
+            order.applyVoucher(appliedVoucher, discountAmount);
+        }
+
+        final Order savedOrder = orderRepository.save(order);
+
+        if (appliedVoucher != null) {
+            voucherService.recordVoucherUsage(appliedVoucher, user, savedOrder);
+        }
 
         List<OrderItem> orderItems = cartItems.stream()
-                .map(item -> createOrderItem(order, item))
+                .map(item -> createOrderItem(savedOrder, item))
                 .toList();
         orderItemRepository.saveAll(orderItems);
         paymentRepository.save(new Payment(
-                order,
+                savedOrder,
                 totalAmount,
                 paymentMethod,
                 PAYMENT_STATUS_PENDING
@@ -161,7 +201,10 @@ public class OrderService {
         cartItemRepository.flush();
         orderRepository.flush();
 
-        return toResponse(order, orderItems);
+        // Send order confirmation email asynchronously
+        emailService.sendOrderConfirmationEmail(user.getEmail(), savedOrder.getId().toString(), totalAmount.toPlainString());
+
+        return toResponse(savedOrder, orderItems);
     }
 
     private OrderItem createOrderItem(Order order, CartItem cartItem) {
@@ -266,6 +309,8 @@ public class OrderService {
                 order.getPaymentStatus(),
                 order.getPaymentMethod(),
                 order.getShippingFee(),
+                order.getDiscountAmount(),
+                order.getVoucher() == null ? null : order.getVoucher().getCode(),
                 order.getTotalAmount(),
                 order.getReceiverName(),
                 order.getReceiverPhone(),
