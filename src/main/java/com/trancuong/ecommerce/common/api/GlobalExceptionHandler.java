@@ -166,6 +166,27 @@ public class GlobalExceptionHandler {
         return response(HttpStatus.UNAUTHORIZED, exception.getMessage());
     }
 
+    @ExceptionHandler(com.trancuong.ecommerce.auth.exception.InvalidResetTokenException.class)
+    public ResponseEntity<ApiResponse<Void>> handleInvalidResetToken(
+            com.trancuong.ecommerce.auth.exception.InvalidResetTokenException exception
+    ) {
+        return response(HttpStatus.BAD_REQUEST, exception.getMessage());
+    }
+
+    @ExceptionHandler(com.trancuong.ecommerce.voucher.exception.InvalidVoucherException.class)
+    public ResponseEntity<ApiResponse<Void>> handleInvalidVoucher(
+            com.trancuong.ecommerce.voucher.exception.InvalidVoucherException exception
+    ) {
+        return response(HttpStatus.BAD_REQUEST, exception.getMessage());
+    }
+
+    @ExceptionHandler(com.trancuong.ecommerce.voucher.exception.DuplicateVoucherCodeException.class)
+    public ResponseEntity<ApiResponse<Void>> handleDuplicateVoucherCode(
+            com.trancuong.ecommerce.voucher.exception.DuplicateVoucherCodeException exception
+    ) {
+        return response(HttpStatus.CONFLICT, exception.getMessage());
+    }
+
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ApiResponse<Void>> handleDataIntegrity(
             DataIntegrityViolationException exception

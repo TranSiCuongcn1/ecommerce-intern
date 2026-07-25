@@ -26,7 +26,22 @@ spring:
       host: 127.0.0.1
       port: 6379
 
+  mail:
+    host: ${SPRING_MAIL_HOST:smtp.gmail.com}
+    port: ${SPRING_MAIL_PORT:587}
+    username: ${SPRING_MAIL_USERNAME:tscuong.dev@gmail.com}
+    password: ${SPRING_MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
 app:
+  mail:
+    from: ${APP_MAIL_FROM:noreply@ecommerce.com}
+    reset-password-url: ${APP_RESET_PASSWORD_URL:http://localhost:8080/api/auth/reset-password}
   jwt:
     secret: "${JWT_SECRET:replace-this-secret-with-a-long-random-value-for-real-projects}"
     expiration-minutes: "${JWT_EXPIRATION_MINUTES:60}"
