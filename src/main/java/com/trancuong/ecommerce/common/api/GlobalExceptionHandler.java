@@ -114,6 +114,20 @@ public class GlobalExceptionHandler {
         return response(HttpStatus.CONFLICT, exception.getMessage());
     }
 
+    @ExceptionHandler(com.trancuong.ecommerce.wishlist.exception.DuplicateWishlistItemException.class)
+    public ResponseEntity<ApiResponse<Void>> handleDuplicateWishlist(
+            com.trancuong.ecommerce.wishlist.exception.DuplicateWishlistItemException exception
+    ) {
+        return response(HttpStatus.CONFLICT, exception.getMessage());
+    }
+
+    @ExceptionHandler(com.trancuong.ecommerce.wishlist.exception.WishlistItemNotFoundException.class)
+    public ResponseEntity<ApiResponse<Void>> handleWishlistNotFound(
+            com.trancuong.ecommerce.wishlist.exception.WishlistItemNotFoundException exception
+    ) {
+        return response(HttpStatus.NOT_FOUND, exception.getMessage());
+    }
+
     @ExceptionHandler(DuplicateInventoryException.class)
     public ResponseEntity<ApiResponse<Void>> handleDuplicateInventory(
             DuplicateInventoryException exception
