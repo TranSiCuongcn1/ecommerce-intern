@@ -107,6 +107,13 @@ public class GlobalExceptionHandler {
         return response(HttpStatus.NOT_FOUND, exception.getMessage());
     }
 
+    @ExceptionHandler(com.trancuong.ecommerce.review.exception.DuplicateReviewException.class)
+    public ResponseEntity<ApiResponse<Void>> handleDuplicateReview(
+            com.trancuong.ecommerce.review.exception.DuplicateReviewException exception
+    ) {
+        return response(HttpStatus.CONFLICT, exception.getMessage());
+    }
+
     @ExceptionHandler(DuplicateInventoryException.class)
     public ResponseEntity<ApiResponse<Void>> handleDuplicateInventory(
             DuplicateInventoryException exception
