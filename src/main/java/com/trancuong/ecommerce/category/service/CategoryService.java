@@ -35,11 +35,13 @@ public class CategoryService {
                 .map(categoryMapper::toResponse));
     }
 
+    @org.springframework.cache.annotation.Cacheable(value = com.trancuong.ecommerce.config.CacheConfig.CACHE_CATEGORIES, key = "#id")
     public CategoryResponse findById(UUID id) {
         return categoryMapper.toResponse(getCategory(id));
     }
 
     @Transactional
+    @org.springframework.cache.annotation.CacheEvict(value = com.trancuong.ecommerce.config.CacheConfig.CACHE_CATEGORIES, allEntries = true)
     public CategoryResponse create(CategoryRequest request) {
         String name = request.name().trim();
         String slug = request.slug().trim();
@@ -51,6 +53,7 @@ public class CategoryService {
     }
 
     @Transactional
+    @org.springframework.cache.annotation.CacheEvict(value = com.trancuong.ecommerce.config.CacheConfig.CACHE_CATEGORIES, allEntries = true)
     public CategoryResponse update(UUID id, CategoryRequest request) {
         Category category = getCategory(id);
         String name = request.name().trim();
@@ -65,6 +68,7 @@ public class CategoryService {
     }
 
     @Transactional
+    @org.springframework.cache.annotation.CacheEvict(value = com.trancuong.ecommerce.config.CacheConfig.CACHE_CATEGORIES, allEntries = true)
     public void delete(UUID id) {
         Category category = getCategory(id);
         categoryRepository.delete(category);

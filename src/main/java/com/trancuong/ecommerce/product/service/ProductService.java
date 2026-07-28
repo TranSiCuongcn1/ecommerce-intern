@@ -39,11 +39,13 @@ public class ProductService {
                 .map(this::toResponse));
     }
 
+    @org.springframework.cache.annotation.Cacheable(value = com.trancuong.ecommerce.config.CacheConfig.CACHE_PRODUCT_DETAILS, key = "#id")
     public ProductResponse findById(UUID id) {
         return toResponse(getProduct(id));
     }
 
     @Transactional
+    @org.springframework.cache.annotation.CacheEvict(value = com.trancuong.ecommerce.config.CacheConfig.CACHE_PRODUCT_DETAILS, allEntries = true)
     public ProductResponse create(ProductRequest request) {
         Category category = getCategory(request.categoryId());
         String name = request.name().trim();
@@ -62,6 +64,7 @@ public class ProductService {
     }
 
     @Transactional
+    @org.springframework.cache.annotation.CacheEvict(value = com.trancuong.ecommerce.config.CacheConfig.CACHE_PRODUCT_DETAILS, key = "#id")
     public ProductResponse update(UUID id, ProductRequest request) {
         Product product = getProduct(id);
         Category category = getCategory(request.categoryId());
@@ -82,6 +85,7 @@ public class ProductService {
     }
 
     @Transactional
+    @org.springframework.cache.annotation.CacheEvict(value = com.trancuong.ecommerce.config.CacheConfig.CACHE_PRODUCT_DETAILS, key = "#id")
     public void delete(UUID id) {
         Product product = getProduct(id);
         productRepository.delete(product);
