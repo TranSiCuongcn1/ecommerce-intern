@@ -98,6 +98,15 @@ public class Inventory {
         this.quantityReserved += quantity;
     }
 
+    public void confirmReservation(Integer quantity) {
+        this.quantityReserved = Math.max(0, this.quantityReserved - quantity);
+        this.quantityOnHand = Math.max(0, this.quantityOnHand - quantity);
+    }
+
+    public void releaseReservation(Integer quantity) {
+        this.quantityReserved = Math.max(0, this.quantityReserved - quantity);
+    }
+
     public void deduct(Integer quantity) {
         this.quantityOnHand -= quantity;
     }
