@@ -93,6 +93,20 @@ public class GlobalExceptionHandler {
         return response(HttpStatus.CONFLICT, exception.getMessage());
     }
 
+    @ExceptionHandler(com.trancuong.ecommerce.product.exception.DuplicateSkuException.class)
+    public ResponseEntity<ApiResponse<Void>> handleDuplicateSku(
+            com.trancuong.ecommerce.product.exception.DuplicateSkuException exception
+    ) {
+        return response(HttpStatus.CONFLICT, exception.getMessage());
+    }
+
+    @ExceptionHandler(com.trancuong.ecommerce.product.exception.ProductVariantNotFoundException.class)
+    public ResponseEntity<ApiResponse<Void>> handleProductVariantNotFound(
+            com.trancuong.ecommerce.product.exception.ProductVariantNotFoundException exception
+    ) {
+        return response(HttpStatus.NOT_FOUND, exception.getMessage());
+    }
+
     @ExceptionHandler(DuplicateInventoryException.class)
     public ResponseEntity<ApiResponse<Void>> handleDuplicateInventory(
             DuplicateInventoryException exception
