@@ -58,6 +58,7 @@ public class OrderService {
     private final UserAddressRepository userAddressRepository;
     private final com.trancuong.ecommerce.voucher.service.VoucherService voucherService;
     private final com.trancuong.ecommerce.common.mail.EmailService emailService;
+    private final com.trancuong.ecommerce.common.lock.DistributedLockService distributedLockService;
 
     public PageResponse<OrderResponse> findMyOrders(User user, Pageable pageable) {
         Pageable sortedPageable = PageableDefaults.withDefaultSort(
@@ -213,30 +214,33 @@ public class OrderService {
             throw new ProductNotAvailableForCartException(product.getId());
         }
 
-        Inventory inventory = inventoryRepository.findByProductIdForUpdate(product.getId())
-                .stream()
-                .filter(item -> "ACTIVE".equalsIgnoreCase(item.getWarehouse().getStatus()))
-                .filter(item -> item.getAvailableQuantity() >= cartItem.getQuantity())
-                .min(Comparator
-                        .comparingInt(Inventory::getAvailableQuantity)
-                        .thenComparing(item -> item.getWarehouse().getCode()))
-                .orElseThrow(() -> new InsufficientInventoryException(
-                        product.getId(),
-                        cartItem.getQuantity()
-                ));
+        String lockKey = "lock:inventory:product:" + product.getId();
+        return distributedLockService.executeWithLock(lockKey, 5, 10, () -> {
+            Inventory inventory = inventoryRepository.findByProductIdForUpdate(product.getId())
+                    .stream()
+                    .filter(item -> "ACTIVE".equalsIgnoreCase(item.getWarehouse().getStatus()))
+                    .filter(item -> item.getAvailableQuantity() >= cartItem.getQuantity())
+                    .min(Comparator
+                            .comparingInt(Inventory::getAvailableQuantity)
+                            .thenComparing(item -> item.getWarehouse().getCode()))
+                    .orElseThrow(() -> new InsufficientInventoryException(
+                            product.getId(),
+                            cartItem.getQuantity()
+                    ));
 
-        inventory.deduct(cartItem.getQuantity());
-        BigDecimal subtotal = product.getPrice().multiply(BigDecimal.valueOf(cartItem.getQuantity()));
+            inventory.deduct(cartItem.getQuantity());
+            BigDecimal subtotal = product.getPrice().multiply(BigDecimal.valueOf(cartItem.getQuantity()));
 
-        return new OrderItem(
-                order,
-                product,
-                inventory.getWarehouse(),
-                product.getName(),
-                product.getPrice(),
-                cartItem.getQuantity(),
-                subtotal
-        );
+            return new OrderItem(
+                    order,
+                    product,
+                    inventory.getWarehouse(),
+                    product.getName(),
+                    product.getPrice(),
+                    cartItem.getQuantity(),
+                    subtotal
+            );
+        });
     }
 
     private void validateStatusChange(Order order, String nextStatus) {

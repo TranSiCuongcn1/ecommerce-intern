@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -66,6 +68,9 @@ class OrderServiceTest {
     @Mock
     private com.trancuong.ecommerce.common.mail.EmailService emailService;
 
+    @Mock
+    private com.trancuong.ecommerce.common.lock.DistributedLockService distributedLockService;
+
     @InjectMocks
     private OrderService orderService;
 
@@ -78,6 +83,11 @@ class OrderServiceTest {
         CartItem cartItem = new CartItem(user, product, 2);
         UserAddress address = address(user);
 
+        when(distributedLockService.executeWithLock(anyString(), anyLong(), anyLong(), any(java.util.function.Supplier.class)))
+                .thenAnswer(invocation -> {
+                    java.util.function.Supplier<?> supplier = invocation.getArgument(3);
+                    return supplier.get();
+                });
         when(cartItemRepository.findByUserIdOrderByCreatedAtDesc(user.getId()))
                 .thenReturn(List.of(cartItem));
         when(userAddressRepository.findByIdAndUserId(address.getId(), user.getId()))

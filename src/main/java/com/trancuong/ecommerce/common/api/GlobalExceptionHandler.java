@@ -187,6 +187,13 @@ public class GlobalExceptionHandler {
         return response(HttpStatus.CONFLICT, exception.getMessage());
     }
 
+    @ExceptionHandler(com.trancuong.ecommerce.common.lock.LockAcquisitionException.class)
+    public ResponseEntity<ApiResponse<Void>> handleLockAcquisition(
+            com.trancuong.ecommerce.common.lock.LockAcquisitionException exception
+    ) {
+        return response(HttpStatus.TOO_MANY_REQUESTS, exception.getMessage());
+    }
+
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ApiResponse<Void>> handleDataIntegrity(
             DataIntegrityViolationException exception
