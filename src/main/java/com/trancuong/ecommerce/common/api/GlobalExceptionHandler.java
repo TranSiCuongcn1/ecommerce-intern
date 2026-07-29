@@ -114,6 +114,13 @@ public class GlobalExceptionHandler {
         return response(HttpStatus.CONFLICT, exception.getMessage());
     }
 
+    @ExceptionHandler(com.trancuong.ecommerce.common.ratelimit.RateLimitExceededException.class)
+    public ResponseEntity<ApiResponse<Void>> handleRateLimitExceeded(
+            com.trancuong.ecommerce.common.ratelimit.RateLimitExceededException exception
+    ) {
+        return response(HttpStatus.TOO_MANY_REQUESTS, exception.getMessage());
+    }
+
     @ExceptionHandler(com.trancuong.ecommerce.wishlist.exception.DuplicateWishlistItemException.class)
     public ResponseEntity<ApiResponse<Void>> handleDuplicateWishlist(
             com.trancuong.ecommerce.wishlist.exception.DuplicateWishlistItemException exception

@@ -33,6 +33,7 @@ public class AuthController {
         );
     }
 
+    @com.trancuong.ecommerce.common.ratelimit.RateLimit(capacity = 5, durationSeconds = 60)
     @PostMapping("/login")
     public ApiResponse<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
         return ApiResponse.success(
